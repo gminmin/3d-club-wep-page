@@ -61,6 +61,10 @@ body::-webkit-scrollbar-thumb:hover,
     box-sizing: border-box;
 }
 
+.hidden {
+    display: none !important;
+}
+
 /* Global Immersive Styles */
 .global-background {
     position: fixed;
@@ -369,6 +373,8 @@ body.workflow-active .auto-scroll-btn {
     font-weight: 700;
     font-size: 1.1rem;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    border: none;
 }
 
 .cta-button:hover {
@@ -1166,10 +1172,19 @@ footer {
     position: relative;
 }
 
+/* Disable hover movement for the contact form to keep it stable for input */
+.contact-form-container:hover {
+    transform: none !important;
+    box-shadow: 0 10px 40px -5px rgba(0, 0, 0, 0.4) !important;
+}
+
 .main-contact-form {
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    position: relative;
+    z-index: 5;
+    /* Ensure form is above glass effect overlays */
 }
 
 .form-row {

@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const contactSuccessMsg = document.getElementById('contact-success');
 
     // [중요] join-script.js와 동일한 구글 앱스 스크립트 URL을 입력하세요.
-    const CONTACT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbvcZ-VWrVaIr1ZXU3LUvFRkR4gYlKfALaz9rw4DjRVlIznoaP_hyyBUStomiPrQgAY8Q/exec';
+    const CONTACT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvcZ-VWrVaIr1ZXU3LUvFRkR4gYlKfALaz9rw4DjRVlIznoaP_hyyBUStomiPrQgAY8Q/exec';
 
     if (contactForm) {
         contactForm.addEventListener('submit', async (e) => {
@@ -403,22 +403,32 @@ document.addEventListener('DOMContentLoaded', () => {
             data.type = 'contact'; // 데이터 타입 구분자 추가
 
             try {
-                if (CONTACT_SCRIPT_URL) {
-                    await fetch(CONTACT_SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        body: JSON.stringify(data),
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-                } else {
-                    await new Promise(r => setTimeout(r, 1000));
+                if (!CONTACT_SCRIPT_URL) {
+                    throw new Error("Target URL is not defined.");
                 }
+
+                const response = await fetch(CONTACT_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(data),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                // mode: 'no-cors' 에서는 응답 상태를 확인할 수 없지만,
+                // fetch 자체가 실패(네트워크 오류 등)하지 않으면 성공으로 간주하는 일반적인 방식입니다.
+                // 하지만 404 등 서버 오류를 잡으려면 백엔드 CORS 설정이 필요합니다.
+
+                // Reset button state for completeness (even though form will be hidden)
+                contactSubmitBtn.disabled = false;
+                contactSubmitBtn.innerHTML = originalBtnContent;
 
                 contactForm.classList.add('hidden');
                 contactSuccessMsg.classList.remove('hidden');
             } catch (error) {
                 console.error("Submission failed:", error);
-                alert("전송에 실패했습니다. 다시 시도해 주세요.");
+                alert("전송에 실패했습니다. 연결 상태를 확인하거나 잠시 후 다시 시도해 주세요.\n(오류 내용: " + error.message + ")");
+
+                // 버튼 복구
                 contactSubmitBtn.disabled = false;
                 contactSubmitBtn.innerHTML = originalBtnContent;
             }
