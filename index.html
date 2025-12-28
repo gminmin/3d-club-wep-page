@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>진부중학교 3D 동아리</title>
     <link rel="icon" type="image/png" href="정사각 3d 동아리 무색 로고.png">
-    <link rel="stylesheet" href="style.css?v=25">
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="index-page.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap"
@@ -14,6 +15,7 @@
 </head>
 
 <body>
+    <div class="page-transition-overlay"></div>
     <div class="global-background"></div>
     <nav class="navbar">
         <div class="logo-container">
@@ -40,6 +42,7 @@
     </nav>
 
     <header id="home" class="hero">
+        <div id="hero-3d-container" style="position: absolute; inset: 0; z-index: 1;"></div>
         <div class="hero-content">
             <h1 class="hero-title" data-i18n="hero.title">상상을 현실로,<br>창작의 세계</h1>
             <p class="hero-subtitle" data-i18n="hero.subtitle">진부중학교 3D 동아리입니다.</p>
@@ -51,9 +54,9 @@
         <div class="hero-background"></div>
     </header>
 
-    <section id="about" class="section about-section">
+    <section id="about" class="section about-section reveal-up">
         <div class="container">
-            <h2 class="section-title" data-i18n="about.title">About</h2>
+            <h2 class="section-title reveal-up" data-i18n="about.title">About</h2>
             <div class="about-content">
                 <div class="about-text">
                     <h3 data-i18n="about.subtitle">창의와 창작</h3>
@@ -73,24 +76,7 @@
             <h2 class="section-title" data-i18n="gallery.title">Gallery</h2>
             <p class="section-subtitle" data-i18n="gallery.subtitle">부원들의 열정이 담긴 작품들입니다.</p>
             <div class="gallery-grid">
-                <div class="gallery-item">
-                    <img src="예시 작품 1.png" alt="예시 작품 1">
-                    <div class="overlay">
-                        <h3>Creative Work 01</h3>
-                    </div>
-                </div>
-                <div class="gallery-item">
-                    <img src="예시 작품 2.png" alt="예시 작품 2">
-                    <div class="overlay">
-                        <h3>Creative Work 02</h3>
-                    </div>
-                </div>
-                <div class="gallery-item">
-                    <img src="예시 작품 3.png" alt="예시 작품 3">
-                    <div class="overlay">
-                        <h3>Creative Work 03</h3>
-                    </div>
-                </div>
+                <!-- Gallery items will be rendered dynamically -->
             </div>
             <div style="text-align: center; margin-top: 3rem;">
                 <a href="gallery.html" class="cta-button" data-i18n="gallery.more">더 많은 작품 보기</a>
@@ -267,6 +253,8 @@
         <span class="btn-icon">✨</span>
     </a>
 
+    <script src="gallery-data.js"></script>
+    <script src="translations.js"></script>
     <script src="script.js"></script>
 </body>
 
