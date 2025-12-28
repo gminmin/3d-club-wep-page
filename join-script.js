@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("제출될 데이터:", data);
 
         // --- [중요] 여기에 구글 앱스 스크립트 배포 후 받은 URL을 넣으세요 ---
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvcZ-VWrVaIr1ZXU3LUvFRkR4gYlKfALaz9rw4DjRVlIznoaP_hyyBUStomiPrQgAY8Q/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBHxUU4Nx9JcTEagrClAwc8qHVMA0Lmwa6X3Abfr-OEqu4f4gogNkpLntc6nDWvJGI/exec';
 
         try {
             if (!SCRIPT_URL) {
@@ -59,12 +59,15 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
+                    mode: 'no-cors', // CORS 에러 방지 (응답 읽기 포기)
                     body: JSON.stringify(data),
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'text/plain;charset=utf-8'
                     }
                 });
+
+                // no-cors는 에러 없이 여기까지 오면 전송은 된 것으로 간주함
+                console.log("전송 완료 (응답 확인 불가)");
             }
 
             // 2. 성공 처리 애니메이션
@@ -98,6 +101,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!('ontouchstart' in window)) {
         document.addEventListener('mousemove', mouseHandler);
+    }
+
+    // --- Modal Logic ---
+    const modal = document.getElementById('awards-modal');
+    const openModalBtn = document.getElementById('open-modal-btn');
+    const closeModalBtn = document.getElementById('modal-cancel-btn');
+    const confirmModalBtn = document.getElementById('modal-confirm-btn');
+    const hiddenInput = document.getElementById('awards-career');
+    const modalInput = document.getElementById('awards-input');
+
+    if (modal && openModalBtn) {
+        // Open Modal
+        openModalBtn.addEventListener('click', () => {
+            modal.classList.remove('hidden');
+            // Slight delay to allow display:block to apply before opacity transition
+            setTimeout(() => {
+                modal.classList.add('active');
+                modalInput.focus();
+            }, 10);
+
+            // Pre-fill modal with existing data if any
+            modalInput.value = hiddenInput.value;
+        });
+
+        // Close Function
+        const closeModal = () => {
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300); // Wait for transition
+        };
+
+        closeModalBtn.addEventListener('click', closeModal);
+
+        // Confirm (Save) Function
+        confirmModalBtn.addEventListener('click', () => {
+            const content = modalInput.value.trim();
+            hiddenInput.value = content;
+
+            if (content.length > 0) {
+                openModalBtn.innerText = "✓ 수상 및 경력 수정하기 (내용 있음)";
+                openModalBtn.style.background = "rgba(4, 217, 217, 0.2)";
+                openModalBtn.style.borderColor = "var(--color-cyan)";
+            } else {
+                openModalBtn.innerText = "+ 수상 및 경력 추가하기 (선택)";
+                openModalBtn.style.background = "rgba(15, 23, 42, 0.6)";
+                openModalBtn.style.borderColor = "rgba(255, 255, 255, 0.3)";
+            }
+            closeModal();
+        });
+
+        // Close on clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
     }
 });
 
