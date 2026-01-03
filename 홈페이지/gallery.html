@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>진부중학교 3D 동아리</title>
+    <link rel="icon" type="image/png" href="정사각 3d 동아리 무색 로고.png">
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="gallery-page.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap"
+        rel="stylesheet">
+    <style>
+        .gallery-page-header {
+            padding-top: 120px;
+            padding-bottom: 4rem;
+            text-align: center;
+            background: linear-gradient(to bottom, #0f172a, #1e293b);
+        }
+
+        .gallery-grid-large {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-transition-overlay"></div>
+    <nav class="navbar scrolled">
+        <div class="logo-container">
+            <a href="index.html" style="text-decoration: none; display: flex; align-items: center; gap: 1rem;">
+                <img src="3d 동아리 로고.png" alt="진부중학교 3D 동아리 로고" class="nav-logo">
+                <span class="nav-title" data-i18n="nav.title">진부중학교 3D 동아리</span>
+            </a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html" data-i18n="nav.home">홈으로</a></li>
+            <li><a href="portfolio.html" data-i18n="nav.portfolio">포트폴리오</a></li>
+            <li class="lang-dropdown">
+                <button class="lang-dropbtn">Language ▾</button>
+                <div class="lang-dropdown-content">
+                    <a href="#" data-lang="ko">한국어</a>
+                    <a href="#" data-lang="en">English</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Exhibition Hero -->
+    <header class="exhibition-hero">
+        <div class="hero-bg-overlay"></div>
+        <div class="container hero-content-wrapper">
+            <span class="exhibition-label">2024-2025 EXHIBITION</span>
+            <h1 class="exhibition-title" data-i18n="gallery.page.title">창작의 지평선</h1>
+            <p class="exhibition-subtitle" data-i18n="gallery.page.subtitle">진부중학교 3D 동아리 부원들이 펼치는 무한한 상상의 세계</p>
+        </div>
+    </header>
+
+    <!-- Filter Navigation -->
+    <nav class="gallery-filter-nav">
+        <div class="container">
+            <ul class="filter-list">
+                <li class="filter-item active" data-filter="all">ALL</li>
+                <li class="filter-item" data-filter="kms">강민수</li>
+                <li class="filter-item" data-filter="loy">이온유</li>
+                <li class="filter-item" data-filter="csh">최승호</li>
+                <li class="filter-item" data-filter="etc">ETC</li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="section gallery-section">
+        <div class="container">
+            <div class="gallery-grid-exhibition" id="gallery-container">
+                <!-- Works will be rendered here by script.js -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Project Detail Modal -->
+    <div id="project-modal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <button class="modal-close">&times;</button>
+            <div class="modal-content">
+                <div class="modal-media">
+                    <img src="" alt="Project Detail" id="modal-img">
+                </div>
+                <div class="modal-details">
+                    <span class="modal-year" id="modal-year">2025</span>
+                    <h2 class="modal-title" id="modal-title">Project Title</h2>
+                    <div class="modal-creator">
+                        <div class="creator-avatar"></div>
+                        <span id="modal-creator">Creator Name</span>
+                    </div>
+                    <p class="modal-desc" id="modal-desc">
+                        작품에 대한설명이 들어갑니다. 사용된 툴, 제작 기간, 영감 받은 곳 등을 자유롭게 적을 수 있습니다.
+                    </p>
+                    <div class="modal-tags">
+                        <span>#Blender</span>
+                        <span>#3DModelling</span>
+                        <span>#Art</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-logo">
+                <img src="3d 동아리 무색 로고.png" alt="Footer Logo">
+                <p data-i18n="footer.club">진부중학교 3D 동아리</p>
+            </div>
+            <div class="footer-info">
+                <p><span data-i18n="footer.address">강원특별자치도 평창군 진부면</span> | Email: gnagminsu@jb3d.xyz</p>
+                <p>&copy; 2025 Jinbu Middle School 3D Club. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="gallery-data.js"></script>
+    <script src="translations.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio | 진부중학교 3D 동아리</title>
+    <link rel="icon" type="image/png" href="정사각 3d 동아리 무색 로고.png">
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="portfolio-page.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="page-transition-overlay"></div>
+    <!-- 
+    [사용 가이드 / User Guide]
+    이 파일(portfolio.html)은 포트폴리오의 '틀(Layout)'을 담당합니다.
+    실제 이력서 내용(이름, 소개, 학력, 프로젝트 등)은 'script.js' 파일에 있습니다!
+    
+    - 디자인/배치를 바꾸려면? -> 이 파일(portfolio.html)과 style.css를 수정하세요.
+    - 글자/내용을 바꾸려면? -> script.js 파일을 열고 'memberData' 부분을 수정하세요.
+    -->
+
+    <!-- Global Immersive Background (Matches other pages) -->
+    <div class="global-background"></div>
+
+    <nav class="navbar scrolled">
+        <div class="logo-container">
+            <a href="index.html" style="text-decoration: none; display: flex; align-items: center; gap: 1rem;">
+                <img src="3d 동아리 로고.png" alt="진부중학교 3D 동아리 로고" class="nav-logo">
+                <span class="nav-title" data-i18n="nav.title">진부중학교 3D 동아리</span>
+            </a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html" data-i18n="nav.home">홈으로</a></li>
+            <li><a href="gallery.html" data-i18n="nav.gallery">갤러리</a></li>
+            <li><a href="#" class="nav-join-highlight" data-i18n="nav.portfolio">포트폴리오</a></li>
+            <li class="lang-dropdown">
+                <button class="lang-dropbtn">Language ▾</button>
+                <div class="lang-dropdown-content">
+                    <a href="#" data-lang="ko">한국어</a>
+                    <a href="#" data-lang="en">English</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main id="portfolio-content" class="cv-container">
+        <!-- Default State -->
+        <div class="empty-state">
+            <h1 class="bounce-text">부원 포트폴리오</h1>
+            <p>열람하실 부원의 프로필을 선택해주세요.</p>
+            <div class="cv-selector">
+                <a href="?member=kms" class="cv-link">강민수</a>
+                <a href="?member=loy" class="cv-link">이온유</a>
+                <a href="?member=csh" class="cv-link">최승호</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- 
+        [CV 템플릿 / CV Template]
+        아래 <template> 태그 안의 내용은 화면에 바로 보이지 않고, 
+        script.js가 데이터를 채워 넣을 때 복사해서 사용합니다.
+    -->
+    <template id="portfolio-template">
+        <div class="cv-paper">
+            <!-- Header Section -->
+            <header class="cv-header">
+                <div class="cv-header-left">
+                    <h1 class="cv-name" id="cv-name">이름</h1>
+                    <p class="cv-role" id="cv-role">역할/소속</p>
+                    <p class="cv-contact" id="cv-contact">email@example.com</p>
+                    <div class="cv-links" id="cv-links">
+                        <!-- 링크가 여기에 주입됩니다 -->
+                    </div>
+                </div>
+                <div class="cv-header-right">
+                    <div class="cv-photo" id="cv-photo"></div>
+                </div>
+            </header>
+
+            <hr class="cv-divider">
+
+            <!-- Summary -->
+            <section class="cv-section">
+                <h2 class="cv-section-title">핵심 역량 및 소개</h2>
+                <p class="cv-summary-text" id="cv-summary">이곳에 소개 내용이 표시됩니다.</p>
+            </section>
+
+            <!-- Education -->
+            <section class="cv-section">
+                <h2 class="cv-section-title">학력 및 활동</h2>
+                <ul class="cv-list" id="cv-education">
+                    <!-- Education items -->
+                </ul>
+            </section>
+
+            <!-- Skills -->
+            <section class="cv-section">
+                <h2 class="cv-section-title">보유 기술</h2>
+                <div class="cv-skills-grid" id="cv-skills">
+                    <!-- Skills items -->
+                </div>
+            </section>
+
+            <!-- Awards -->
+            <section class="cv-section">
+                <h2 class="cv-section-title">수상 및 경력</h2>
+                <ul class="cv-list" id="cv-awards">
+                    <!-- Awards items -->
+                </ul>
+            </section>
+
+            <!-- Key Projects (Case Studies) -->
+            <section class="cv-section page-break">
+                <h2 class="cv-section-title">주요 프로젝트</h2>
+                <div id="cv-projects">
+                    <!-- Project case studies -->
+                </div>
+            </section>
+        </div>
+    </template>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-logo">
+                <img src="3d 동아리 무색 로고.png" alt="Footer Logo">
+                <p>진부중학교 3D 동아리</p>
+            </div>
+            <div class="footer-info">
+                <p><span data-i18n="footer.address">강원특별자치도 평창군 진부면</span> | Email: gnagminsu@jb3d.xyz</p>
+                <p>&copy; 2025 Jinbu Middle School 3D Club. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="translations.js"></script>
+    <script src="portfolio-data.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
