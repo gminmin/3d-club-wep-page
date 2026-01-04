@@ -324,6 +324,43 @@
 
 /* Media Queries */
 @media (max-width: 768px) {
+    .cv-container {
+        margin-top: 80px;
+    }
+
+    .empty-state {
+        padding: 2rem 1.5rem;
+        min-height: 400px;
+    }
+
+    .empty-state h1 {
+        font-size: 2.2rem;
+    }
+
+    .empty-state p {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .cv-selector {
+        gap: 1rem;
+    }
+
+    .cv-link {
+        width: 100%;
+        max-width: 250px;
+        height: 60px;
+        font-size: 1.1rem;
+    }
+
+    .cv-paper {
+        padding: 2rem 1.5rem;
+    }
+
+    .cv-name {
+        font-size: 2rem;
+    }
+
     .cv-header {
         flex-direction: column;
         align-items: flex-start;
@@ -332,6 +369,8 @@
 
     .cv-photo {
         margin: 1rem 0 0 0;
+        width: 100px;
+        height: 125px;
         order: 0;
         /* Reset order */
     }

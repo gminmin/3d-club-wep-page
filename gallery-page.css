@@ -251,3 +251,58 @@
     cursor: pointer;
     z-index: 10;
 }
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    .exhibition-hero {
+        height: 50vh;
+        min-height: 300px;
+    }
+
+    .exhibition-title {
+        font-size: 2.2rem;
+    }
+
+    .exhibition-subtitle {
+        font-size: 1rem;
+        padding: 0 1rem;
+    }
+
+    .gallery-filter-nav {
+        top: 60px;
+        padding: 1rem 0;
+    }
+
+    .filter-item {
+        padding: 0.4rem 1.2rem;
+        font-size: 0.9rem;
+    }
+
+    .gallery-grid-exhibition {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1.5rem;
+        padding: 1rem;
+    }
+
+    .modal-overlay {
+        padding: 1rem;
+    }
+
+    .modal-details {
+        padding: 1.5rem;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .exhibition-title {
+        font-size: 1.8rem;
+    }
+
+    .exhibition-label {
+        font-size: 0.8rem;
+    }
+}
