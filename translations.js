@@ -62,7 +62,15 @@ const translations = {
         "contact.message": "문의 내용",
         "contact.submit": "문의 보내기",
         "contact.file": "파일 첨부 (선택 사항)",
-        "contact.success": "문의가 성공적으로 전송되었습니다!"
+        "contact.success": "문의가 성공적으로 전송되었습니다!",
+        "nav.back": "홈으로 돌아가기",
+        "join.title": "3D CLUB JOIN",
+        "join.subtitle": "상상을 현실로 만드는 여정에 함께하세요.",
+        "join.success_title": "지원이 완료되었습니다!",
+        "join.success_message": "소중한 지원 감사드립니다. 확인 후 연락드리겠습니다.",
+        "join.back_to_home_button": "홈페이지로 돌아가기",
+        "join.modal_title": "수상 및 경력",
+        "join.modal_placeholder": "관련 수상 내역이나 활동 경력을 자유롭게 작성해주세요."
     },
     en: {
         "nav.home": "Home",
@@ -127,6 +135,14 @@ const translations = {
         "pursuit.vision.desc": "<strong>'Imagination Becomes Reality'</strong><br><br>Beyond simple technical skills,<br>we learn a new language to express ourselves in the digital world.<br>We inspire each other and grow together as 3D artists.",
         "pursuit.style.title": "Our Style",
         "pursuit.style.desc": "We embrace minimalism, where unnecessary details are not needed.",
-        "pursuit.style.desc2": "We embrace minimalism, where unnecessary details are not needed."
+        "pursuit.style.desc2": "We embrace minimalism, where unnecessary details are not needed.",
+        "nav.back": "Back to Home",
+        "join.title": "3D CLUB JOIN",
+        "join.subtitle": "Join our journey to turn imagination into reality.",
+        "join.success_title": "Application Successful!",
+        "join.success_message": "Thank you for applying. We'll get back to you soon.",
+        "join.back_to_home_button": "Back to Home",
+        "join.modal_title": "Awards & Experience",
+        "join.modal_placeholder": "Feel free to write about your rewards or experience."
     }
 };

@@ -450,6 +450,31 @@ body.workflow-active .auto-scroll-btn {
     padding: 1rem 1.5rem;
     color: #fff;
     transition: all 0.3s ease;
+    width: 100%;
+    /* Ensure full width */
+    box-sizing: border-box;
+    /* Include padding in width */
+}
+
+/* New Input Group Styling for Alignment */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.main-contact-form label {
+    color: #cbd5e1;
+    font-weight: 500;
+    margin-left: 0.5rem;
+}
+
+.main-contact-form button[type="submit"] {
+    align-self: center;
+    /* Center the button */
+    min-width: 200px;
+    margin-top: 1rem;
 }
 
 .main-contact-form input:focus,

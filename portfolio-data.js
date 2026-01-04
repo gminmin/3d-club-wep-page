@@ -39,7 +39,7 @@ const memberData = {
         ]
     },
     loy: {
-        name: "Lee Onyu",
+        name: "이온유",
         role: "Character Artist",
         email: "loy@jinbu.ms.kr",
         summary: "스토리텔링이 담긴 캐릭터를 창조하는 캐릭터 아티스트입니다. 인체 해부학에 대한 깊은 이해를 바탕으로 사실적인 조형과 카툰 렌더링 스타일을 모두 소화합니다. 캐릭터의 성격과 서사를 시각적으로 풀어내는 데 강점이 있습니다.",
@@ -78,8 +78,8 @@ const memberData = {
         ]
     },
     csh: {
-        name: "Choi Seungho",
-        role: "Environment Artist",
+        name: "최승호",
+        role: "진부중학교",
         email: "csh@jinbu.ms.kr",
         summary: "공간에 감정을 불어넣는 배경 아티스트입니다. 빛과 대기를 활용한 무드 연출(Lighting & Atmosphere)에 탁월하며, 대규모 지형 제작 및 자연물 묘사에 강점이 있습니다. 언리얼 엔진을 활용한 리얼타임 렌더링 환경 구축을 즐깁니다.",
         photoColor: "#43e97b",

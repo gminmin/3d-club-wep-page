@@ -88,6 +88,15 @@ function init() {
     addObject('cube', false); // false = don't save history for initial object
 
     initUI();
+
+    // --- Page Transition Fix ---
+    const transitionOverlay = document.querySelector('.page-transition-overlay');
+    if (transitionOverlay) {
+        setTimeout(() => {
+            transitionOverlay.classList.add('fade-out');
+        }, 500); // Wait a bit for Three.js to initialize
+    }
+
     animate();
 }
 

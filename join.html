@@ -23,16 +23,25 @@
         <div class="logo-container">
             <a href="index.html" class="nav-back-link">
                 <span class="back-icon">←</span>
-                <span class="nav-title">홈으로 돌아가기</span>
+                <span class="nav-title" data-i18n="nav.back">홈으로 돌아가기</span>
             </a>
         </div>
+        <ul class="nav-links">
+            <li class="lang-dropdown">
+                <button class="lang-dropbtn">Language ▾</button>
+                <div class="lang-dropdown-content">
+                    <a href="#" data-lang="ko">한국어</a>
+                    <a href="#" data-lang="en">English</a>
+                </div>
+            </li>
+        </ul>
     </nav>
 
     <main class="join-container">
         <div class="join-form-card fade-in">
             <div class="form-header">
-                <h1 class="text-gradient">3D CLUB JOIN</h1>
-                <p class="subtitle">상상을 현실로 만드는 여정에 함께하세요.</p>
+                <h1 class="text-gradient" data-i18n="join.title">3D CLUB JOIN</h1>
+                <p class="subtitle" data-i18n="join.subtitle">상상을 현실로 만드는 여정에 함께하세요.</p>
             </div>
 
             <form id="recruitment-form" class="join-form">
@@ -91,21 +100,25 @@
             </form>
 
             <div id="success-message" class="success-message hidden">
-                <h2>지원이 완료되었습니다!</h2>
-                <p>소중한 지원 감사드립니다. 확인 후 연락드리겠습니다.</p>
-                <a href="index.html" class="cta-button">홈페이지로 돌아가기</a>
+                <h2 data-i18n="join.success_title">지원이 완료되었습니다!</h2>
+                <p data-i18n="join.success_message">소중한 지원 감사드립니다. 확인 후 연락드리겠습니다.</p>
+                <a href="index.html" class="cta-button" data-i18n="join.back_to_home_button">홈페이지로 돌아가기</a>
             </div>
         </div>
     </main>
 
+    <script src="translations.js"></script>
+    <script src="script.js"></script>
     <script src="join-script.js"></script>
 
     <!-- Modal Structure -->
     <div id="awards-modal" class="modal-overlay hidden">
         <div class="modal-content join-form-card">
-            <h3 class="text-gradient" style="font-size: 1.8rem; margin-bottom: 1.5rem; text-align: center;">수상 및 경력</h3>
+            <h3 class="text-gradient" style="font-size: 1.8rem; margin-bottom: 1.5rem; text-align: center;"
+                data-i18n="join.modal_title">수상 및 경력</h3>
             <div class="input-group">
-                <textarea id="awards-input" rows="6" placeholder="관련 수상 내역이나 활동 경력을 자유롭게 작성해주세요."></textarea>
+                <textarea id="awards-input" rows="6" placeholder="관련 수상 내역이나 활동 경력을 자유롭게 작성해주세요."
+                    data-i18n-placeholder="join.modal_placeholder"></textarea>
                 <div class="input-glow"></div>
             </div>
             <div class="modal-actions" style="display: flex; gap: 1rem; margin-top: 2rem;">
