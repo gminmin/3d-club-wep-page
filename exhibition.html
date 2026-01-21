@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3D 동아리 가상 전시관</title>
+    <link rel="stylesheet" href="exhibition.css" />
+</head>
+
+<div id="art-modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeArtwork()">×</button>
+        <img id="art-image" />
+        <h2 id="art-title"></h2>
+        <p class="author" id="art-author"></p>
+        <p id="art-desc"></p>
+    </div>
+</div>
+
+<body>
+    <a href="index.html" class="back-btn">← 홈으로</a>
+    <div id="viewer"></div>
+    <div class="gallery-ui">마우스로 드래그하여 둘러보세요</div>
+
+    <script src="https://unpkg.com/three@0.159.0/build/three.min.js"></script>
+    <script src="exhibition-data.js"></script>
+    <script src="exhibition.js"></script>
+</body>
+
+</html>
