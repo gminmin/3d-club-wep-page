@@ -123,11 +123,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Pre-fill modal with existing data if any
             modalInput.value = hiddenInput.value;
+
+            // Lock body scroll
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
         });
 
         // Close Function
         const closeModal = () => {
             modal.classList.remove('active');
+
+            // Unlock body scroll
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+
             setTimeout(() => {
                 modal.classList.add('hidden');
             }, 300); // Wait for transition

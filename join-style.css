@@ -20,7 +20,9 @@ body {
     color: var(--text-color);
     font-family: 'Noto Sans KR', 'Outfit', sans-serif;
     overflow-x: hidden;
+    overflow-y: auto;
     min-height: 100vh;
+    position: relative;
 }
 
 /* Global Immersive Background */
@@ -342,8 +344,15 @@ select option {
 
 /* Mobile Responsive */
 @media (max-width: 640px) {
+    body {
+        -webkit-overflow-scrolling: touch;
+        overflow-y: scroll !important;
+    }
+
     .join-container {
         padding: 6rem 1rem 2rem;
+        min-height: 100vh;
+        overflow-y: visible;
     }
 
     .join-form-card {
@@ -366,6 +375,13 @@ select option {
     .input-group label {
         font-size: 0.9rem;
     }
+
+    /* Ensure modal content is scrollable on small screens */
+    .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 }
 
 /* Modal Styles */
@@ -383,12 +399,15 @@ select option {
     align-items: center;
     opacity: 0;
     visibility: hidden;
+    pointer-events: none;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    -webkit-overflow-scrolling: touch;
 }
 
 .modal-overlay.active {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
 }
 
 .modal-content {
