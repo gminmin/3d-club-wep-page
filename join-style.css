@@ -15,6 +15,11 @@
     box-sizing: border-box;
 }
 
+html {
+    height: 100%;
+    overflow-y: auto;
+}
+
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
@@ -22,7 +27,7 @@ body {
     overflow-x: hidden;
     overflow-y: auto;
     min-height: 100vh;
-    position: relative;
+    height: auto;
 }
 
 /* Global Immersive Background */
@@ -383,6 +388,28 @@ select option {
         -webkit-overflow-scrolling: touch;
     }
 }
+
+/* Fix for tablet/mobile navigation (1271px breakpoint from base.css) */
+@media (max-width: 1271px) {
+
+    /* Override base.css mobile menu styles for join.html */
+    /* Since join.html doesn't have a mobile menu toggle, keep nav-links visible and static */
+    .nav-links {
+        position: static !important;
+        height: auto !important;
+        width: auto !important;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        flex-direction: row !important;
+        right: auto !important;
+        top: auto !important;
+    }
+
+    .navbar {
+        position: absolute !important;
+    }
+}
+
 
 /* Modal Styles */
 .modal-overlay {

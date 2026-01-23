@@ -112,6 +112,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalInput = document.getElementById('awards-input');
 
     if (modal && openModalBtn) {
+        let scrollPosition = 0;
+
         // Open Modal
         openModalBtn.addEventListener('click', () => {
             modal.classList.remove('hidden');
@@ -124,10 +126,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Pre-fill modal with existing data if any
             modalInput.value = hiddenInput.value;
 
-            // Lock body scroll
+            // Save current scroll position
+            scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+
+            // Lock body scroll without position fixed (prevents jump)
             document.body.style.overflow = 'hidden';
-            document.body.style.position = 'fixed';
-            document.body.style.width = '100%';
+            document.body.style.touchAction = 'none';
+            document.documentElement.style.overflow = 'hidden';
         });
 
         // Close Function
@@ -136,8 +141,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Unlock body scroll
             document.body.style.overflow = '';
-            document.body.style.position = '';
-            document.body.style.width = '';
+            document.body.style.touchAction = '';
+            document.documentElement.style.overflow = '';
+
+            // Restore scroll position
+            window.scrollTo(0, scrollPosition);
 
             setTimeout(() => {
                 modal.classList.add('hidden');
