@@ -58,8 +58,11 @@ window.addEventListener('pointerdown', (e) => {
 window.addEventListener('pointermove', (e) => {
     if (!isDown || isPinching) return;
 
-    lon += (prevX - e.clientX) * 0.1;
-    lat += (e.clientY - prevY) * 0.1;
+    // 현재 FOV에 비례하여 감도 조절 (확대될수록 감도 낮춤)
+    const sensitivity = 0.1 * (camera.fov / 75);
+
+    lon += (prevX - e.clientX) * sensitivity;
+    lat += (e.clientY - prevY) * sensitivity;
     lat = Math.max(-85, Math.min(85, lat));
 
     prevX = e.clientX;

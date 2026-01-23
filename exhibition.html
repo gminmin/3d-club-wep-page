@@ -20,14 +20,27 @@
 </div>
 
 <body>
-    <a href="index.html" class="back-btn">← 홈으로</a>
+    <a href="index.html" class="back-btn" data-i18n="nav.back">홈으로 돌아가기</a>
     <div id="viewer"></div>
     <div class="gallery-ui">마우스로 드래그하여 둘러보세요</div>
 
     <script src="https://unpkg.com/three@0.159.0/build/three.min.js"></script>
+    <script src="translations.js"></script>
     <script src="exhibition-data.js"></script>
     <script src="exhibition.js"></script>
     <script>
+        // Localization Logic
+        function updateLanguage(lang) {
+            document.documentElement.lang = lang;
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (window.translations && window.translations[lang] && window.translations[lang][key]) {
+                    el.innerText = window.translations[lang][key];
+                }
+            });
+        }
+
         // Apply version to all CSS and JS files
         if (window.CACHE_VERSION) {
             document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
@@ -43,6 +56,11 @@
                 }
             });
         }
+
+        // Initialize language (default to Korean or saved preference)
+        document.addEventListener('DOMContentLoaded', () => {
+            updateLanguage('ko');
+        });
     </script>
 </body>
 
