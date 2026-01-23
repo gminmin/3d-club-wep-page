@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Experience | Virtual Workspace</title>
+    <script src="version.js"></script>
     <link rel="stylesheet" href="base.css">
     <link rel="stylesheet" href="3dexperience.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -199,6 +200,23 @@
     </div>
 
     <script src="3d-experience.js"></script>
+    <script>
+        // Apply version to all CSS and JS files
+        if (window.CACHE_VERSION) {
+            document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+                if (!link.href.includes('fonts.googleapis.com') && !link.href.includes('://') && !link.href.includes('?v=')) {
+                    link.href += '?v=' + window.CACHE_VERSION;
+                }
+            });
+            document.querySelectorAll('script[src]').forEach(script => {
+                if (!script.src.includes('://') || script.src.includes(window.location.hostname)) {
+                    if (!script.src.includes('?v=') && !script.src.includes('version.js')) {
+                        script.src += '?v=' + window.CACHE_VERSION;
+                    }
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>

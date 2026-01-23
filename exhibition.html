@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>3D 동아리 가상 전시관</title>
+    <script src="version.js"></script>
     <link rel="stylesheet" href="exhibition.css" />
 </head>
 
@@ -26,6 +27,23 @@
     <script src="https://unpkg.com/three@0.159.0/build/three.min.js"></script>
     <script src="exhibition-data.js"></script>
     <script src="exhibition.js"></script>
+    <script>
+        // Apply version to all CSS and JS files
+        if (window.CACHE_VERSION) {
+            document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+                if (!link.href.includes('://') && !link.href.includes('?v=')) {
+                    link.href += '?v=' + window.CACHE_VERSION;
+                }
+            });
+            document.querySelectorAll('script[src]').forEach(script => {
+                if (!script.src.includes('://') || script.src.includes(window.location.hostname)) {
+                    if (!script.src.includes('?v=') && !script.src.includes('version.js')) {
+                        script.src += '?v=' + window.CACHE_VERSION;
+                    }
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>

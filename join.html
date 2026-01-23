@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D 동아리 부원 모집 | Join Us</title>
     <link rel="icon" type="image/png" href="정사각 3d 동아리 무색 로고.png">
+    <script src="version.js"></script>
     <link rel="stylesheet" href="base.css">
     <link rel="stylesheet" href="join-style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -123,6 +124,23 @@
     <script src="translations.js"></script>
     <script src="script.js"></script>
     <script src="join-script.js"></script>
+    <script>
+        // Apply version to all CSS and JS files
+        if (window.CACHE_VERSION) {
+            document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+                if (!link.href.includes('fonts.googleapis.com') && !link.href.includes('?v=')) {
+                    link.href += '?v=' + window.CACHE_VERSION;
+                }
+            });
+            document.querySelectorAll('script[src]').forEach(script => {
+                if (!script.src.includes('://') || script.src.includes(window.location.hostname)) {
+                    if (!script.src.includes('?v=') && !script.src.includes('version.js')) {
+                        script.src += '?v=' + window.CACHE_VERSION;
+                    }
+                }
+            });
+        }
+    </script>
 
     <!-- Modal Structure -->
     <div id="awards-modal" class="modal-overlay hidden">
