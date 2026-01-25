@@ -10,7 +10,7 @@
  */
 
 // 현재 사이트 버전
-const SITE_VERSION = '1.0.2';
+const SITE_VERSION = '1.1.0';
 
 // 개발 모드: true로 설정하면 타임스탬프를 사용하여 매번 새로운 버전으로 로드
 const USE_TIMESTAMP = false;
