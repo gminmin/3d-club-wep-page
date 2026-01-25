@@ -95,8 +95,17 @@
                     <div class="input-glow"></div>
                 </div>
 
+                <div class="input-group agreement-group">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="privacy-agreement" name="privacy_agreement" required>
+                        <label for="privacy-agreement" data-i18n="join.privacy_label">개인정보 수집 및 이용에 동의합니다.</label>
+                        <button type="button" class="details-link" id="view-privacy-btn"
+                            data-i18n="join.privacy_details">자세히</button>
+                    </div>
+                </div>
+
                 <button type="submit" class="submit-btn" id="submit-btn">
-                    <span class="btn-text">지원서 제출하기</span>
+                    <span class="btn-text" data-i18n="join.submit_text">지원서 제출하기</span>
                 </button>
             </form>
 
@@ -157,6 +166,23 @@
                     style="flex: 1; background: rgba(255, 255, 255, 0.1);">취소</button>
                 <button type="button" id="modal-confirm-btn" class="cta-button"
                     style="flex: 1; background: var(--color-cyan); color: #000;">확인</button>
+            </div>
+        </div>
+    </div>
+    <!-- Privacy Policy Modal -->
+    <div id="privacy-modal" class="modal-overlay hidden">
+        <div class="modal-content join-form-card">
+            <h3 class="text-gradient" style="font-size: 1.8rem; margin-bottom: 1.5rem; text-align: center;"
+                data-i18n="join.privacy_title">개인정보 수집 및 이용 안내</h3>
+            <div class="privacy-content-box">
+                <p id="privacy-text" style="white-space: pre-wrap; font-size: 0.9rem; line-height: 1.6; color: #cbd5e1;"
+                    data-i18n="join.privacy_content">
+                </p>
+            </div>
+            <div class="modal-actions" style="margin-top: 2rem;">
+                <button type="button" id="privacy-close-btn" class="cta-button"
+                    style="width: 100%; background: var(--color-cyan); color: #000;"
+                    data-i18n="common.confirm">확인</button>
             </div>
         </div>
     </div>

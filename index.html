@@ -227,6 +227,16 @@
                         <div class="input-glow"></div>
                     </div>
 
+                    <div class="input-group agreement-group" style="margin-top: 0.5rem;">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="privacy-agreement" name="privacy_agreement" required>
+                            <label for="privacy-agreement" data-i18n="contact.privacy_label">개인정보 수집 및 이용에
+                                동의합니다.</label>
+                            <button type="button" class="details-link" id="view-privacy-btn"
+                                data-i18n="contact.privacy_details">자세히</button>
+                        </div>
+                    </div>
+
                     <button type="submit" class="cta-button" id="contact-submit-btn">
                         <span data-i18n="contact.submit">문의 보내기</span>
                         <span class="btn-icon">✉️</span>
@@ -280,6 +290,23 @@
             });
         }
     </script>
+    <!-- Privacy Policy Modal -->
+    <div id="privacy-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-card" style="max-width: 500px; width: 90%; background: rgba(30, 41, 59, 0.95);">
+            <h3 class="hero-title"
+                style="font-size: 1.8rem; margin-bottom: 1.5rem; text-align: center; -webkit-text-fill-color: initial; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; color: transparent;"
+                data-i18n="contact.privacy_title">문의하기 개인정보 수집 및 이용 안내</h3>
+            <div class="privacy-content-box">
+                <p id="privacy-text" style="white-space: pre-wrap; font-size: 0.9rem; line-height: 1.6; color: #cbd5e1;"
+                    data-i18n="contact.privacy_content">
+                </p>
+            </div>
+            <div class="modal-actions" style="margin-top: 2rem;">
+                <button type="button" id="privacy-close-btn" class="cta-button" style="width: 100%;"
+                    data-i18n="common.confirm">확인</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

@@ -320,6 +320,14 @@ document.addEventListener('DOMContentLoaded', () => {
         contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            // 개인정보 동의 체크 확인
+            const privacyAgreement = document.getElementById('privacy-agreement');
+            if (privacyAgreement && !privacyAgreement.checked) {
+                const errorMsg = translations[currentLang]?.["contact.privacy_error"] || "개인정보 수집 및 이용에 동의해야 문의 전송이 가능합니다.";
+                alert(errorMsg);
+                return;
+            }
+
             const originalBtnContent = contactSubmitBtn.innerHTML;
             contactSubmitBtn.disabled = true;
             contactSubmitBtn.innerHTML = '<span>Sending...</span> <div class="loading-spinner"></div>';
@@ -639,5 +647,41 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // No valid ID -> Show default empty state (selector)
         }
+    }
+
+    // --- Privacy Modal Logic ---
+    const privacyModal = document.getElementById('privacy-modal');
+    const viewPrivacyBtn = document.getElementById('view-privacy-btn');
+    const closePrivacyBtn = document.getElementById('privacy-close-btn');
+
+    if (privacyModal && viewPrivacyBtn) {
+        let scrollPos = 0;
+
+        const openPrivacy = () => {
+            privacyModal.classList.remove('hidden');
+            setTimeout(() => privacyModal.classList.add('active'), 10);
+            scrollPos = window.pageYOffset || document.documentElement.scrollTop;
+            document.body.style.overflow = 'hidden';
+            document.body.style.touchAction = 'none';
+            document.documentElement.style.overflow = 'hidden';
+        };
+
+        const closePrivacy = () => {
+            privacyModal.classList.remove('active');
+            document.body.style.overflow = '';
+            document.body.style.touchAction = '';
+            document.documentElement.style.overflow = '';
+            window.scrollTo(0, scrollPos);
+            setTimeout(() => privacyModal.classList.add('hidden'), 300);
+        };
+
+        viewPrivacyBtn.addEventListener('click', openPrivacy);
+        closePrivacyBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            closePrivacy();
+        });
+        privacyModal.addEventListener('click', (e) => {
+            if (e.target === privacyModal) closePrivacy();
+        });
     }
 });

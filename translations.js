@@ -15,7 +15,7 @@ const translations = {
         "hero.join": "지금 지원하기",
         "about.title": "About",
         "about.subtitle": "창의력과 기술의 만남",
-        "about.desc": "3D 창작물을 통해 우리가 오랫동안 기억하고 싶은것, 이제는 볼수없는것, 현실에 없는것을 만들어냅니다. 그리고 그 배경에는 무료 오픈소스 프로그램 'Blender'가 있습니다.",
+        "about.desc": "3D 창작물을 통해 우리가 오랫동안 기억하고 싶은것, 이제는 볼수없는것, 현실에 없는것을 만들어냅니다. 그리고 그 배경에는 무료 오픈소스 프로그램 <a href='https://www.blender.org' class='blender-link' target='_blank' rel='noopener noreferrer'>Blender</a>가 있습니다.",
         "gallery.title": "Gallery",
         "gallery.subtitle": "부원들의 열정이 담긴 작품들입니다.",
         "gallery.more": "더 많은 작품 보기",
@@ -71,7 +71,18 @@ const translations = {
         "join.success_message": "소중한 지원 감사드립니다. 확인 후 연락드리겠습니다.",
         "join.back_to_home_button": "홈페이지로 돌아가기",
         "join.modal_title": "수상 및 경력",
-        "join.modal_placeholder": "관련 수상 내역이나 활동 경력을 자유롭게 작성해주세요."
+        "join.modal_placeholder": "관련 수상 내역이나 활동 경력을 자유롭게 작성해주세요.",
+        "join.privacy_label": "개인정보 수집 및 이용에 동의합니다.",
+        "join.privacy_details": "자세히",
+        "join.privacy_error": "개인정보 수집 및 이용에 동의해야 지원이 가능합니다.",
+        "join.privacy_title": "부원 모집 개인정보 수집 및 이용 안내",
+        "join.privacy_content": "2026학년도 진부중학교 3D 자율 동아리는 부원 모집을 위해 다음과 같이 개인정보를 수집·이용합니다.\n\n- 수집 항목\n  · 필수항목: 성명, 학번, 지원 분야, 지원 동기 및 포부\n  · 선택항목: 수상 및 경력\n\n- 이용 목적: 부원 모집 및 선발 관련 연락\n- 보관 기간:학년도 종료 시까지\n- 제3자 제공: 없음\n\n이용자는 동의를 거부할 수 있으나, 동의하지 않을 경우 지원이 제한될 수 있습니다.",
+        "contact.privacy_label": "개인정보 수집 및 이용에 동의합니다.",
+        "contact.privacy_details": "자세히",
+        "contact.privacy_error": "개인정보 수집 및 이용에 동의해야 문의 전송이 가능합니다.",
+        "contact.privacy_title": "문의하기 개인정보 수집 및 이용 안내",
+        "contact.privacy_content": "2026학년도 진부중학교 3D 자율 동아리는 문의 응답을 위해 다음과 같이 개인정보를 수집·이용합니다.\n\n- 수집 항목: 성명, 연락처(이메일/번호), 문의 내용\n- 이용 목적: 문의 내용 확인 및 답변을 위한 연락\n- 보관 기간: 목적 달성 시까지\n- 제3자 제공: 없음\n\n이용자는 동의를 거부할 수 있으나, 동의하지 않을 경우 문의 접수가 제한될 수 있습니다.",
+        "common.confirm": "확인"
     },
     en: {
         "nav.home": "Home",
@@ -89,7 +100,7 @@ const translations = {
         "hero.join": "Apply Now",
         "about.title": "About",
         "about.subtitle": "Where Creativity Meets Technology",
-        "about.desc": "We turn ideas into reality through 3D modeling. and we learn various tools like 'Blender' and grow together.",
+        "about.desc": "We turn ideas into reality through 3D modeling. and we learn various tools like <a href='https://www.blender.org' class='blender-link' target='_blank' rel='noopener noreferrer'>Blender</a> and grow together.",
         "gallery.title": "Gallery",
         "gallery.subtitle": "Works filled with our members' passion.",
         "gallery.more": "View More Works",
@@ -145,6 +156,17 @@ const translations = {
         "join.success_message": "Thank you for applying. We'll get back to you soon.",
         "join.back_to_home_button": "Back to Home",
         "join.modal_title": "Awards & Experience",
-        "join.modal_placeholder": "Feel free to write about your rewards or experience."
+        "join.modal_placeholder": "Feel free to write about your rewards or experience.",
+        "join.privacy_label": "I agree to the collection and use of personal information.",
+        "join.privacy_details": "Details",
+        "join.privacy_error": "You must agree to the privacy policy to apply.",
+        "join.privacy_title": "Registration Privacy Policy",
+        "join.privacy_content": "The 2026 Jinbu Middle School 3D Autonomous Club collects and uses personal information for recruitment as follows.\n\n- Items to be collected:\n  · Required: Name, Student ID, Specialization, Motivation\n  · Optional: Awards & Experience\n\n- Purpose of Use: Contact for recruitment and selection\n- Period of Retention: Until the purpose is achieved or until the end of the academic year\n- Provision to Third Parties: None\n\nUsers may refuse to agree. However, if you do not agree, application may be restricted.",
+        "contact.privacy_label": "I agree to the collection and use of personal information.",
+        "contact.privacy_details": "Details",
+        "contact.privacy_error": "You must agree to the privacy policy to send an inquiry.",
+        "contact.privacy_title": "Inquiry Privacy Policy",
+        "contact.privacy_content": "The 2026 Jinbu Middle School 3D Autonomous Club collects and uses personal information to respond to inquiries as follows.\n\n- Items to be collected: Name, Contact Info, Message\n- Purpose of Use: Contact for inquiry confirmation and response\n- Period of Retention: Until the purpose is achieved or until the end of the academic year\n- Provision to Third Parties: None\n\nUsers may refuse to agree. However, if you do not agree, inquiry submission may be restricted.",
+        "common.confirm": "Confirm"
     }
 };
