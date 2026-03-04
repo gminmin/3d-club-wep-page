@@ -50,6 +50,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Video Background Loading ---
+    const bgVideo = document.getElementById('bg-video');
+    if (bgVideo) {
+        bgVideo.addEventListener('playing', () => {
+            bgVideo.classList.add('loaded');
+        });
+
+        // Check if already playing (cached or slow start)
+        if (!bgVideo.paused) {
+            bgVideo.classList.add('loaded');
+        }
+    }
+
     // --- Navbar Scroll Effect ---
     const navbar = document.querySelector('.navbar');
     window.addEventListener('scroll', () => {
