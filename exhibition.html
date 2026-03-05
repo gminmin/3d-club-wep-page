@@ -42,20 +42,24 @@
         }
 
         // Apply version to all CSS and JS files
-        if (window.CACHE_VERSION) {
-            document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
-                if (!link.href.includes('://') && !link.href.includes('?v=')) {
-                    link.href += '?v=' + window.CACHE_VERSION;
-                }
-            });
-            document.querySelectorAll('script[src]').forEach(script => {
-                if (!script.src.includes('://') || script.src.includes(window.location.hostname)) {
-                    if (!script.src.includes('?v=') && !script.src.includes('version.js')) {
-                        script.src += '?v=' + window.CACHE_VERSION;
+        (function () {
+            if (window.CACHE_VERSION) {
+                var v = window.CACHE_VERSION;
+                var h = window.location.hostname;
+                document.querySelectorAll('link[rel="stylesheet"]').forEach(function (l) {
+                    if (l.href && !l.href.includes('fonts.googleapis.com') && !l.href.includes('?v=')) {
+                        l.href += (l.href.includes('?') ? '&' : '?') + 'v=' + v;
                     }
-                }
-            });
-        }
+                });
+                document.querySelectorAll('script[src]').forEach(function (s) {
+                    if (s.src && !s.src.includes('version.js') && !s.src.includes('?v=')) {
+                        if (!s.src.includes('://') || s.src.includes(h)) {
+                            s.src += (s.src.includes('?') ? '&' : '?') + 'v=' + v;
+                        }
+                    }
+                });
+            }
+        })();
 
         // Initialize language (default to Korean or saved preference)
         document.addEventListener('DOMContentLoaded', () => {

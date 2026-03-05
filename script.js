@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const contactSubmitBtn = document.getElementById('contact-submit-btn');
     const contactSuccessMsg = document.getElementById('contact-success');
 
-    const CONTACT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxM9lh5FrMSGB1nowP7Q95_9lPddKPVS3Wjpi0JCUecdE9tQcDnvMJsPkwkpzPkLYie8Q/exec';
+    const CONTACT_SCRIPT_URL = window.APPS_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbxM9lh5FrMSGB1nowP7Q95_9lPddKPVS3Wjpi0JCUecdE9tQcDnvMJsPkwkpzPkLYie8Q/exec';
 
     if (contactForm) {
         contactForm.addEventListener('submit', async (e) => {

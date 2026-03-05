@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxM9lh5FrMSGB1nowP7Q95_9lPddKPVS3Wjpi0JCUecdE9tQcDnvMJsPkwkpzPkLYie8Q/exec';
+        const SCRIPT_URL = window.APPS_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbxM9lh5FrMSGB1nowP7Q95_9lPddKPVS3Wjpi0JCUecdE9tQcDnvMJsPkwkpzPkLYie8Q/exec';
 
         try {
             await fetch(SCRIPT_URL, {

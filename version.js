@@ -10,7 +10,10 @@
  */
 
 // 현재 사이트 버전
-const SITE_VERSION = '2.0.2';
+const SITE_VERSION = '2.1.0';
+
+// 구글 앱스 스크립트 배포 URL (중앙 관리)
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxM9lh5FrMSGB1nowP7Q95_9lPddKPVS3Wjpi0JCUecdE9tQcDnvMJsPkwkpzPkLYie8Q/exec";
 
 // 개발 모드: true로 설정하면 타임스탬프를 사용하여 매번 새로운 버전으로 로드
 const USE_TIMESTAMP = false;
@@ -25,6 +28,7 @@ function getVersion() {
 
 // 전역 변수로 내보내기
 window.CACHE_VERSION = getVersion();
+window.APPS_SCRIPT_URL = APPS_SCRIPT_URL;
 
 // 콘솔에 버전 정보 출력 (디버깅용)
 console.log(`%c🎨 진부중학교 3D 동아리 웹사이트`, 'font-size: 16px; font-weight: bold; color: #00ffff;');
