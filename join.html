@@ -60,12 +60,20 @@
                 </div>
 
                 <div class="input-group">
+                    <label for="contact">연락처 (번호 또는 이메일)</label>
+                    <input type="text" id="contact" name="contact" placeholder="연락 가능한 정보를 입력해주세요" required>
+                    <div class="input-glow"></div>
+                </div>
+
+                <div class="input-group">
                     <label for="field">지원 분야 (Specialization)</label>
                     <select id="field" name="field" required>
                         <option value="" disabled selected>관심 있는 분야를 선택하세요</option>
                         <option value="modeling">3D 모델링 (Modeling)</option>
                         <option value="animating">애니메이팅 (Animating)</option>
                         <option value="texturing">텍스처링 & 재질 (Texturing)</option>
+                        <option value="editing">영상 편집 (Editing)</option>
+                        <option value="design">디자인 (Design)</option>
                         <option value="planning">기획 & 연출 (Planning)</option>
                         <option value="other">기타 (Other)</option>
                     </select>
