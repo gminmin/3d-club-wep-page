@@ -7,6 +7,26 @@
     <title>진부중학교 3D 동아리</title>
     <link rel="icon" type="image/png" href="정사각 3d 동아리 무색 로고.png">
     <script src="version.js"></script>
+    <script>
+        // Check popup state early to prevent flashing
+        (function() {
+            const POPUP_HIDDEN_DATE_KEY = 'welcomePopupHiddenDate';
+            function getTodayDate() {
+                const today = new Date();
+                return today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+            }
+            const hiddenDate = localStorage.getItem(POPUP_HIDDEN_DATE_KEY);
+            const today = getTodayDate();
+            if (hiddenDate === today) {
+                document.documentElement.setAttribute('data-hide-popup', 'true');
+            }
+        })();
+    </script>
+    <style>
+        [data-hide-popup="true"] #welcome-popup-modal {
+            display: none !important;
+        }
+    </style>
     <link rel="stylesheet" href="base.css">
     <link rel="stylesheet" href="index-page.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -46,6 +66,35 @@
             </li>
         </ul>
     </nav>
+
+    <!-- Welcome Popup Modal -->
+    <div id="welcome-popup-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-card" style="max-width: 600px; width: 90%; background: rgba(30, 41, 59, 0.95); position: relative;">
+            <button type="button" class="popup-close-btn" id="popup-close-btn" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; transition: color 0.3s ease;">×</button>
+            
+            <div style="padding: 20px;">
+                <h2 class="hero-title" style="font-size: 1.8rem; margin-bottom: 1rem; text-align: center; -webkit-text-fill-color: initial; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; color: transparent;">
+                    홈페이지 점검 안내
+                </h2>
+                <h4 style="font-size: 1rem; color: #cbd5e1; margin-bottom: 1.5rem;">
+                    2026/4/30 - 2026/5/2<br>
+                    진부중 3D 동아리 홈페이지가 리메이크됩니다.
+                </h4>
+                <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.4;">
+                    지난 기간동안 홈페이지의 불안전한 구조로 여러 문제들을 격어왔습니다.<br>
+                    이에 따라 더 나은 경험 제공과 안전한 보안을 위해 홈페이지를 새롭게<br>리메이크할 예정입니다.<br>
+            </div>
+
+            <div class="modal-actions" style="padding: 0 20px 20px; display: flex; gap: 10px; flex-direction: row;">
+                <button type="button" id="popup-today-hide-btn" class="cta-button secondary" style="flex: 1;">
+                    오늘 하루 보지 않기
+                </button>
+                <button type="button" id="popup-close-main-btn" class="cta-button" style="flex: 1;">
+                    닫기
+                </button>
+            </div>
+        </div>
+    </div>
 
     <header id="home" class="hero">
         <div id="hero-3d-container" style="position: absolute; inset: 0; z-index: 1;"></div>
@@ -338,6 +387,63 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Welcome Popup Logic
+        (function() {
+            const POPUP_HIDDEN_DATE_KEY = 'welcomePopupHiddenDate';
+            const popupModal = document.getElementById('welcome-popup-modal');
+            const closeBtn = document.getElementById('popup-close-btn');
+            const closeMainBtn = document.getElementById('popup-close-main-btn');
+            const todayHideBtn = document.getElementById('popup-today-hide-btn');
+
+            function getTodayDate() {
+                const today = new Date();
+                return today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+            }
+
+            function showPopup() {
+                if (!popupModal) return;
+                popupModal.classList.remove('hidden');
+                requestAnimationFrame(function() {
+                    popupModal.classList.add('active');
+                });
+            }
+
+            function hidePopup() {
+                if (!popupModal) return;
+                popupModal.classList.remove('active');
+                setTimeout(function() {
+                    popupModal.classList.add('hidden');
+                }, 300);
+            }
+
+            function hidePopupForToday() {
+                const today = getTodayDate();
+                localStorage.setItem(POPUP_HIDDEN_DATE_KEY, today);
+                hidePopup();
+            }
+
+            // Event listeners
+            if (closeBtn) closeBtn.addEventListener('click', hidePopup);
+            if (closeMainBtn) closeMainBtn.addEventListener('click', hidePopup);
+            if (todayHideBtn) todayHideBtn.addEventListener('click', hidePopupForToday);
+
+            // Close popup when clicking outside
+            if (popupModal) {
+                popupModal.addEventListener('click', function(e) {
+                    if (e.target === popupModal) {
+                        hidePopup();
+                    }
+                });
+            }
+
+            // Show popup unless it was hidden for today.
+            if (popupModal && document.documentElement.getAttribute('data-hide-popup') !== 'true') {
+                showPopup();
+            }
+        })();
+    </script>
 </body>
 
 </html>
