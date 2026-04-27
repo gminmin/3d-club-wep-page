@@ -10,7 +10,7 @@
  */
 
 // 현재 사이트 버전
-const SITE_VERSION = '2.1.3';
+const SITE_VERSION = '2.1.5';
 
 // 구글 앱스 스크립트 배포 URL (중앙 관리)
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxM9lh5FrMSGB1nowP7Q95_9lPddKPVS3Wjpi0JCUecdE9tQcDnvMJsPkwkpzPkLYie8Q/exec";
