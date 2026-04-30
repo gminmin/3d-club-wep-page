@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시스템 점검 중 | 진부중학교 3D 동아리</title>
+    <link rel="icon" type="image/png" href="web_icon.png" />
+    <link rel="stylesheet" href="style.css?v=2026-04-25-1">
+    <style>
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            background: #ffffff;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .maint-container {
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .maint-card {
+            background: linear-gradient(135deg, #04ADC0, #5D68A6);
+            padding: 4rem 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 40px rgba(4, 173, 192, 0.15);
+            color: #ffffff;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+
+        p {
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .divider {
+            width: 30px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 0 auto 2rem;
+        }
+
+        .contact-info {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .contact-info a {
+            color: #ffffff;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .footer-logo {
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .maint-logo {
+            display: block;
+            width: 120px;
+            height: auto;
+            margin: 0 auto 2.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="maint-container">
+        <div class="maint-card">
+            <img src="Color_Logo.png" alt="Logo" class="maint-logo" onerror="this.style.display='none'">
+            <h1>잠시 점검 중입니다</h1>
+            <p id="maintenance-message">더 나은 서비스를 제공하기 위해 홈페이지를 점검중입니다.<br>잠시 후 다시 방문해 주세요.</p>
+            <div class="divider"></div>
+            <div class="contact-info">
+                문의: <a href="mailto:contact@jb3d.xyz">contact@jb3d.xyz</a>
+            </div>
+        </div>
+        <div class="footer-logo">진부중학교 3D 동아리</div>
+    </div>
+
+    <script type="module" src="dataService.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const waitDS = setInterval(async () => {
+                if (window.dataService) {
+                    clearInterval(waitDS);
+                    try {
+                        const settings = await window.dataService.getMaintenanceSettings();
+                        if (settings && settings.isActive) {
+                            const msg = settings.message || '더 나은 서비스를 제공하기 위해 홈페이지를 단장하고 있습니다.';
+                            document.getElementById('maintenance-message').innerHTML = msg.replace(/\n/g, '<br>');
+                        } else {
+                            window.location.href = 'index.html';
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+            }, 100);
+        });
+    </script>
+</body>
+
+</html>

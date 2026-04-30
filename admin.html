@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="icon" type="image/png" href="web_icon.png" />
+  <title>관리자 대시보드 | 진부중학교 3D 동아리</title>
+  <link rel="stylesheet" href="style.css?v=2026-04-25-1" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body class="admin-body">
+  <div id="admin-container" class="admin-container" style="display: none;">
+    <aside class="admin-sidebar">
+      <a href="index.html" class="admin-logo">ADMIN</a>
+      <ul class="admin-nav">
+        <li><a href="#" class="nav-link active" data-target="dashboard">대시보드</a></li>
+        <li><a href="#" class="nav-link" data-target="notices">공지사항 관리</a></li>
+        <li><a href="#" class="nav-link" data-target="works">작품 관리</a></li>
+        <li><a href="#" class="nav-link" data-target="gallery">갤러리 관리</a></li>
+        <li><a href="#" class="nav-link" data-target="contacts">문의 관리</a></li>
+        <li><a href="#" class="nav-link" data-target="schedule">활동 일정 관리</a></li>
+        <li><a href="#" class="nav-link" data-target="demofiles">데모파일 관리</a></li>
+        <li><a href="#" class="nav-link" data-target="maintenance">임시 페이지 관리</a></li>
+      </ul>
+      <div style="margin-top: auto;">
+        <button id="logout-btn" class="btn btn-outline"
+          style="width: 100%; font-size: 0.8rem; border-color: rgba(255,255,255,0.1); color: #94a3b8;">로그아웃</button>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1 id="page-title">대시보드</h1>
+        <div class="admin-user-info" style="font-size: 0.9rem; font-weight: 600;">관리자 계정으로 로그인 되었습니다.</div>
+      </header>
+
+      <section id="section-dashboard" class="admin-section">
+        <div class="admin-stats">
+          <div class="stat-widget">
+            <span class="label">전체 공지사항</span>
+            <div class="value" id="stat-notices">0</div>
+          </div>
+          <div class="stat-widget">
+            <span class="label">등록된 작품</span>
+            <div class="value" id="stat-works">0</div>
+          </div>
+          <div class="stat-widget">
+            <span class="label">갤러리 아이템</span>
+            <div class="value" id="stat-gallery">0</div>
+          </div>
+          <div class="stat-widget">
+            <span class="label">받은 문의</span>
+            <div class="value" id="stat-contacts">0</div>
+          </div>
+          <div class="stat-widget">
+            <span class="label">데모파일</span>
+            <div class="value" id="stat-demofiles">0</div>
+          </div>
+        </div>
+
+        <div class="admin-stats" style="margin-top: 1rem; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 1.5rem;">
+          <div class="stat-widget"
+            style="background: linear-gradient(135deg, #f8fafc, #f1f5f9); border: 1px solid #e2e8f0;">
+            <span class="label">저장소 사용량 (파일 수)</span>
+            <div class="value" id="stat-storage-usage">0</div>
+            <p style="font-size: 0.7rem; color: #94a3b8; margin-top: 0.25rem;">Storage에 저장된 총 파일 개수</p>
+          </div>
+          <div class="stat-widget"
+            style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #bbf7d0;">
+            <span class="label">API 요청 (세션)</span>
+            <div class="value" id="stat-api-requests" style="color: #166534;">0</div>
+            <p style="font-size: 0.7rem; color: #166534; margin-top: 0.25rem;">현재 접속 중 발생한 요청</p>
+          </div>
+          <div class="stat-widget"
+            style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 1px solid #bfdbfe;">
+            <span class="label">API 응답 (세션)</span>
+            <div class="value" id="stat-api-responses" style="color: #1e40af;">0</div>
+            <p style="font-size: 0.7rem; color: #1e40af; margin-top: 0.25rem;">정상적으로 처리된 응답</p>
+          </div>
+        </div>
+        <div class="admin-content-card">
+          <h3>최근 활동</h3>
+          <p style="color: #64748b; margin-top: 0.5rem;">이곳에서 전체적인 상태를 관리할 수 있습니다.</p>
+        </div>
+      </section>
+
+      <section id="section-notices" class="admin-section" style="display: none;">
+        <div class="admin-content-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3>공지사항 목록</h3>
+            <button class="btn btn-primary btn-sm" onclick="resetNoticeForm(); toggleForm('notice-form')">+ 공지
+              추가</button>
+          </div>
+
+          <form id="notice-form" class="modal-form" style="display: none;">
+            <input type="hidden" id="notice-id" />
+            <input type="text" id="notice-title" placeholder="공지 제목" required />
+            <textarea id="notice-content" placeholder="공지 내용 (마크다운 사용 가능)" rows="6" required></textarea>
+            <div id="notice-preview"
+              style="border:1px solid #e2e8f0; padding:0.5rem; margin-top:0.5rem; background:#f9fafb; color:#111; min-height:4rem;"
+              class="markdown-preview"></div>
+            <p style="font-size: 0.8rem; color: #64748b; margin: -0.5rem 0 0.5rem;">마크다운 미리보기를 확인한 뒤 저장할 수 있습니다.</p>
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="submit" class="btn btn-primary">저장</button>
+              <button type="button" class="btn btn-outline" onclick="toggleForm('notice-form')">취소</button>
+            </div>
+          </form>
+
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>날짜</th>
+                <th>제목</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="notice-list-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="section-works" class="admin-section" style="display: none;">
+        <div class="admin-content-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3>작품 목록</h3>
+            <button class="btn btn-primary btn-sm" onclick="resetWorkForm(); toggleForm('work-form')">+ 작품 추가</button>
+          </div>
+
+          <form id="work-form" class="modal-form" style="display: none;">
+            <input type="hidden" id="work-id" />
+            <input type="text" id="work-title" placeholder="작품명" required />
+            <input type="text" id="work-category" placeholder="카테고리" required />
+            <input type="text" id="work-author" placeholder="제작자" required />
+            <div style="font-size: 0.85rem; color: #64748b;">작품 이미지를 업로드하세요.</div>
+            <input type="file" id="work-file" accept="image/*" required />
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="submit" class="btn btn-primary">저장</button>
+              <button type="button" class="btn btn-outline" onclick="toggleForm('work-form')">취소</button>
+            </div>
+          </form>
+
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>카테고리</th>
+                <th>작품명</th>
+                <th>제작자</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="work-list-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="section-gallery" class="admin-section" style="display: none;">
+        <div class="admin-content-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3>갤러리 목록</h3>
+            <button class="btn btn-primary btn-sm" onclick="resetGalleryForm(); toggleForm('gallery-form')">+ 이미지/영상
+              추가</button>
+          </div>
+
+          <form id="gallery-form" class="modal-form" style="display: none;">
+            <input type="hidden" id="gallery-id" />
+            <select id="gallery-type">
+              <option value="photo">사진</option>
+              <option value="video">영상</option>
+            </select>
+            <input type="text" id="gallery-title" placeholder="제목" required />
+            <input type="date" id="gallery-date" required />
+            <div style="font-size: 0.85rem; color: #64748b;">파일을 업로드하세요. (사진/영상):</div>
+            <input type="file" id="gallery-file" accept="image/*,video/*" required />
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="submit" class="btn btn-primary">저장</button>
+              <button type="button" class="btn btn-outline" onclick="toggleForm('gallery-form')">취소</button>
+            </div>
+          </form>
+
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>타입</th>
+                <th>제목</th>
+                <th>날짜</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="gallery-list-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="section-contacts" class="admin-section" style="display: none;">
+        <div class="admin-content-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3>문의 목록</h3>
+          </div>
+
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>날짜</th>
+                <th>이름</th>
+                <th>이메일</th>
+                <th>제목</th>
+                <th>내용</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="contact-list-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="section-schedule" class="admin-section" style="display: none;">
+        <div class="admin-content-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3>활동 일정 목록</h3>
+            <button class="btn btn-primary btn-sm" onclick="resetScheduleForm(); toggleForm('schedule-form')">+ 일정
+              추가</button>
+          </div>
+
+          <form id="schedule-form" class="modal-form" style="display: none;">
+            <input type="hidden" id="schedule-id" />
+            <input type="text" id="schedule-month" placeholder="월" required />
+            <textarea id="schedule-activity" placeholder="주요 활동" required></textarea>
+            <textarea id="schedule-goal" placeholder="목표" required></textarea>
+            <input type="number" id="schedule-order" placeholder="순서" min="1" required />
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="submit" class="btn btn-primary" id="schedule-submit-btn">저장</button>
+              <button type="button" class="btn btn-outline"
+                onclick="toggleForm('schedule-form'); resetScheduleForm()">취소</button>
+            </div>
+          </form>
+
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>월</th>
+                <th>주요 활동</th>
+                <th>목표</th>
+                <th>순서</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="schedule-list-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="section-demofiles" class="admin-section" style="display: none;">
+        <div class="admin-content-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3>데모파일 목록</h3>
+            <button class="btn btn-primary btn-sm" onclick="resetDemoFileForm(); toggleForm('demofile-form')">+ 파일
+              추가</button>
+          </div>
+
+          <form id="demofile-form" class="modal-form" style="display: none;">
+            <input type="hidden" id="demofile-id" />
+            <input type="text" id="demofile-title" placeholder="파일 이름" required />
+            <select id="demofile-category" required>
+              <option value="project">프로젝트</option>
+              <option value="model">3D 모델</option>
+              <option value="data">자료</option>
+              <option value="program">프로그램</option>
+            </select>
+            <textarea id="demofile-description" placeholder="파일 설명" required></textarea>
+            <input type="url" id="demofile-github" placeholder="GitHub 링크 (선택 사항)" />
+            <div style="font-size: 0.85rem; color: #64748b;">미리보기 이미지를 업로드하세요 (선택 사항).</div>
+            <input type="file" id="demofile-preview" accept="image/*" />
+            <div style="font-size: 0.85rem; color: #64748b;">파일을 업로드하세요.</div>
+            <input type="file" id="demofile-file" required />
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="submit" class="btn btn-primary">저장</button>
+              <button type="button" class="btn btn-outline" onclick="toggleForm('demofile-form')">취소</button>
+            </div>
+          </form>
+
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>카테고리</th>
+                <th>이름</th>
+                <th>설명</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="demofile-list-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="section-maintenance" class="admin-section" style="display: none;">
+        <div class="admin-content-card">
+          <h3>임시 페이지 (점검 모드) 관리</h3>
+          <p style="color: #64748b; margin-bottom: 1.5rem;">홈페이지 전체에 임시 공지 또는 점검 페이지를 띄웁니다.</p>
+
+          <div id="maint-status-card"
+            style="padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+            <div id="maint-status-dot" style="width: 10px; height: 10px; border-radius: 50%;"></div>
+            <span id="maint-status-text" style="font-weight: 600;">상태를 불러오는 중...</span>
+          </div>
+
+          <form id="maintenance-form" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+              <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">점검 모드 스위치</label>
+              <button type="button" id="maint-toggle-btn" class="btn btn-outline" style="width: 100%; justify-content: space-between; align-items: center; padding: 1rem; background: #f8fafc;">
+                <span id="maint-toggle-label" style="font-weight: 600; color: #64748b;">비활성 상태 (정상 운영)</span>
+                <div id="maint-toggle-switch" style="width: 48px; height: 24px; background: #cbd5e1; border-radius: 20px; position: relative; transition: all 0.3s ease;">
+                    <div id="maint-toggle-knob" style="position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: all 0.3s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"></div>
+                </div>
+              </button>
+              <input type="hidden" id="maint-active" value="false">
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">표시될 메시지</label>
+              <textarea id="maint-message" placeholder="사용자에게 보여줄 메시지를 입력하세요." rows="5"
+                style="width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.5rem;"
+                required></textarea>
+            </div>
+
+            <div
+              style="background: #fff7ed; border: 1px solid #fed7aa; padding: 1rem; border-radius: 0.5rem; font-size: 0.85rem; color: #9a3412;">
+              <strong>보안 확인:</strong> 설정을 변경하려면 현재 관리자 비밀번호를 한 번 더 입력해야 합니다.
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+              <button type="submit" class="btn btn-primary">설정 저장하기</button>
+              <button type="button" class="btn btn-outline" id="maint-preview-btn">미리보기</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="dataService.js?v=2026-04-25-1"></script>
+  <script src="admin.js?v=2026-04-25-1"></script>
+</body>
+
+</html>

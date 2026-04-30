@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="icon" type="image/png" href="black_Logo.png" />
+  <title>관리자 로그인 | 진주교육대학교 3D 동아리</title>
+  <link rel="stylesheet" href="style.css?v=2026-04-25-1" />
+</head>
+
+<body class="admin-body">
+  <div class="admin-login-overlay">
+    <div class="admin-login-card">
+      <h2>관리자 로그인</h2>
+      <p style="margin-bottom: 1.5rem; color: #64748b; font-size: 0.9rem;">동아리 관리자 계정으로 로그인하세요.</p>
+      <input type="email" id="admin-email" placeholder="이메일" />
+      <input type="password" id="admin-password" placeholder="비밀번호를 입력하세요" />
+      <button id="login-btn" class="btn btn-primary" style="width: 100%; justify-content: center;">로그인</button>
+      <p id="login-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 1rem; display: none;">비밀번호가 일치하지 않습니다.
+      </p>
+    </div>
+  </div>
+
+  <script type="module" src="dataService.js?v=2026-04-25-1"></script>
+  <script src="admin-login.js?v=2026-04-25-1"></script>
+</body>
+
+</html>

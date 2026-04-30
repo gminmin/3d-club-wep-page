@@ -2,449 +2,676 @@
 <html lang="ko">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>진부중학교 3D 동아리</title>
-    <link rel="icon" type="image/png" href="정사각 3d 동아리 무색 로고.png">
-    <script src="version.js"></script>
-    <script>
-        // Check popup state early to prevent flashing
-        (function() {
-            const POPUP_HIDDEN_DATE_KEY = 'welcomePopupHiddenDate';
-            function getTodayDate() {
-                const today = new Date();
-                return today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-            }
-            const hiddenDate = localStorage.getItem(POPUP_HIDDEN_DATE_KEY);
-            const today = getTodayDate();
-            if (hiddenDate === today) {
-                document.documentElement.setAttribute('data-hide-popup', 'true');
-            }
-        })();
-    </script>
-    <style>
-        [data-hide-popup="true"] #welcome-popup-modal {
-            display: none !important;
-        }
-    </style>
-    <link rel="stylesheet" href="base.css">
-    <link rel="stylesheet" href="index-page.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap"
-        rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>진부중학교 3D 동아리</title>
+  <link rel="icon" type="image/png" href="web_icon.png" />
+  <meta name="description" content="진부중학교 3D 동아리 공식 홈페이지입니다." />
+  <link rel="stylesheet" href="style.css?v=2026-04-25-1" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    /* ===== 히어로 ===== */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      background: var(--grad-hero);
+      background-size: 300% 300%;
+      animation: gradShift 10s ease infinite;
+    }
+
+
+
+    .hero-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-radius: 30px;
+      padding: 5px 16px;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.92);
+      letter-spacing: 0.08em;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    .hero h1 {
+      font-family: var(--f-base);
+      font-weight: 900;
+      font-size: clamp(2rem, 6vw, 4rem);
+      color: var(--c-white);
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+      animation: fadeUp 0.9s 0.15s ease both;
+    }
+
+    .hero h1 .sub {
+      display: block;
+      font-size: 0.45em;
+      font-family: var(--f-base);
+      font-weight: 300;
+      opacity: 0.85;
+      margin-bottom: 0.3em;
+    }
+
+    .hero-desc {
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      color: rgba(255, 255, 255, 0.85);
+      max-width: 520px;
+      margin-bottom: 2.4rem;
+      line-height: 1.8;
+      animation: fadeUp 1s 0.3s ease both;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      animation: fadeUp 1s 0.45s ease both;
+    }
+
+    .hero-btns .btn-primary,
+    .hero-btns .btn-outline {
+      background: transparent;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      color: #fff;
+      box-shadow: none;
+    }
+
+    .hero-btns .btn-primary:hover,
+    .hero-btns .btn-outline:hover {
+      background: rgba(255, 255, 255, 1);
+      color: var(--c-teal);
+      box-shadow: none;
+      transform: translateY(-2px);
+    }
+
+    /* ===== 비디오 배경 ===== */
+    .video-bg-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .video-bg-content {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .video-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      /* 어두운 오버레이 */
+      z-index: 1;
+      pointer-events: none;
+    }
+
+
+
+    .hero-content {
+      position: relative;
+      z-index: 3;
+      padding: 0 5%;
+      max-width: 760px;
+    }
+
+    /* 스크롤 인디케이터 */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: rgba(3, 217, 217, 1);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      animation: fadeUp 1s 1s ease both;
+      z-index: 3;
+    }
+
+    .scroll-mouse {
+      width: 24px;
+      height: 38px;
+      border: 2px solid rgba(3, 217, 217, 1);
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      padding-top: 6px;
+      z-index: 3;
+    }
+
+    .scroll-wheel {
+      width: 3px;
+      height: 8px;
+      border-radius: 3px;
+      background: rgba(3, 217, 217, 1);
+      animation: scrollWheel 1.6s ease-in-out infinite;
+      z-index: 3;
+    }
+
+    @keyframes scrollWheel {
+      0% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(12px);
+        opacity: 0;
+      }
+    }
+
+    /* ===== 빠른 링크 카드 ===== */
+    .nav-cards {
+      padding: 5rem 5%;
+      background: var(--c-bg);
+    }
+
+    .nav-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 860px) {
+      .nav-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 540px) {
+      .nav-cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .nav-card {
+      display: flex;
+      flex-direction: column;
+      padding: 2rem 1.75rem;
+      background: var(--c-card);
+      border: 2px solid rgba(4, 173, 192, 0.25);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .nav-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--grad-main);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--transition);
+    }
+
+    .nav-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .nav-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .nav-card-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--grad-card);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--f-accent);
+      font-size: 0.75rem;
+      font-weight: 900;
+      background: var(--grad-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(4, 173, 192, 0.18);
+      background: linear-gradient(135deg, rgba(4, 173, 192, 0.08), rgba(93, 104, 166, 0.08));
+    }
+
+    .nav-card-icon span {
+      background: var(--grad-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 0.8rem;
+      font-weight: 700;
+      font-family: var(--f-accent);
+    }
+
+    .nav-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .nav-card p {
+      font-size: 0.85rem;
+      color: var(--c-text-sub);
+      flex: 1;
+    }
+
+    .nav-card-arrow {
+      margin-top: 1.25rem;
+      font-size: 0.9rem;
+      color: var(--c-teal);
+      font-weight: 700;
+      transition: transform var(--transition);
+    }
+
+    .nav-card:hover .nav-card-arrow {
+      transform: translateX(6px);
+    }
+
+    /* ===== 소개 미리보기 ===== */
+    .intro-section {
+      background: linear-gradient(135deg, rgba(4, 173, 192, 0.04), rgba(93, 104, 166, 0.04));
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    @media (max-width: 760px) {
+      .intro-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+    }
+
+    .intro-visual {
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+
+    .about-cube-canvas {
+      width: 320px;
+      height: 320px;
+      max-width: 100%;
+      pointer-events: none;
+    }
+
+    .stat-chips {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+    }
+
+    .stat-chip {
+      padding: 0.5rem 1.25rem;
+      background: linear-gradient(135deg, rgba(4, 173, 192, 0.08), rgba(93, 104, 166, 0.08));
+      border: 2px solid rgba(4, 173, 192, 0.25);
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--c-indigo);
+    }
+
+    .tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+  </style>
 </head>
 
 <body>
-    <div class="page-transition-overlay"></div>
-    <div class="global-background"></div>
-    <nav class="navbar">
-        <div class="logo-container">
-            <img src="3d 동아리 로고.png" alt="진부중학교 3D 동아리 로고" class="nav-logo">
-            <span class="nav-title" data-i18n="nav.title">진부중학교 3D 동아리</span>
-        </div>
-        <button class="mobile-menu-toggle" aria-label="메뉴 열기">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-        <ul class="nav-links">
-            <li><a href="#home" data-i18n="nav.home">홈</a></li>
-            <li><a href="#about" data-i18n="nav.about">동아리 소개</a></li>
-            <li><a href="#gallery" data-i18n="nav.gallery">작품 갤러리</a></li>
-            <li><a href="portfolio.html" data-i18n="nav.portfolio">포트폴리오</a></li>
-            <li><a href="#pursuit" data-i18n="nav.pursuit">추구하는 바</a></li>
-            <li><a href="#workflow" data-i18n="nav.workflow">워크플로우</a></li>
-            <li><a href="join.html" class="nav-join-highlight" data-i18n="nav.join">부원 모집</a></li>
-            <li><a href="#contact" data-i18n="nav.contact">문의하기</a></li>
-            <li class="lang-dropdown">
-                <button class="lang-dropbtn">Language ▾</button>
-                <div class="lang-dropdown-content">
-                    <a href="#" data-lang="ko">한국어</a>
-                    <a href="#" data-lang="en">English</a>
-                </div>
-            </li>
-        </ul>
-    </nav>
 
-    <!-- Welcome Popup Modal -->
-    <div id="welcome-popup-modal" class="modal-overlay hidden">
-        <div class="modal-content glass-card" style="max-width: 600px; width: 90%; background: rgba(30, 41, 59, 0.95); position: relative;">
-            <button type="button" class="popup-close-btn" id="popup-close-btn" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; transition: color 0.3s ease;">×</button>
-            
-            <div style="padding: 20px;">
-                <h2 class="hero-title" style="font-size: 1.8rem; margin-bottom: 1rem; text-align: center; -webkit-text-fill-color: initial; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; color: transparent;">
-                    홈페이지 점검 안내
-                </h2>
-                <h4 style="font-size: 1rem; color: #cbd5e1; margin-bottom: 1.5rem;">
-                    2026/4/30 16:00 - 5/1 02:00<br>
-                    진부중 3D 동아리 홈페이지가 리메이크됩니다.
-                </h4>
-                <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.4;">
-                    지난 기간동안 홈페이지의 불안전한 구조로 여러 문제들을 격어왔습니다.<br>
-                    이에 따라 더 나은 경험 제공과 안전한 보안을 위해 홈페이지를 새롭게<br>리메이크할 예정입니다.<br>
-                    <br> 따라서 4월 30일부터 5월 1일까지 홈페이지 접속 및 접수가 제안될 수 있습니다. 양해바랍니다.
-            </div>
-
-            <div class="modal-actions" style="padding: 0 20px 20px; display: flex; gap: 10px; flex-direction: row;">
-                <button type="button" id="popup-today-hide-btn" class="cta-button secondary" style="flex: 1;">
-                    오늘 하루 보지 않기
-                </button>
-                <button type="button" id="popup-close-main-btn" class="cta-button" style="flex: 1;">
-                    닫기
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <header id="home" class="hero">
-        <div id="hero-3d-container" style="position: absolute; inset: 0; z-index: 1;"></div>
-        <div class="video-bg-container">
-            <video id="bg-video" class="video-bg-content" autoplay muted loop playsinline>
-                <source
-                    src="https://res.cloudinary.com/dfrh0djn3/video/upload/v1772616530/11%EC%B0%A8%EB%B3%B8_j532io.mp4"
-                    type="video/mp4">
-            </video>
-        </div>
-        <div class="video-overlay"></div>
-        <div class="hero-content">
-            <h1 class="hero-title" data-i18n="hero.title">상상을 현실로,<br>창작의 세계</h1>
-            <p class="hero-subtitle" data-i18n="hero.subtitle">진부중학교 3D 동아리입니다.</p>
-            <div class="hero-btns">
-                <a href="#gallery" class="cta-button" data-i18n="hero.cta">작품 보러가기</a>
-                <a href="join.html" class="cta-button secondary" data-i18n="hero.join">지금 지원하기</a>
-            </div>
-        </div>
-        <div class="hero-background"></div>
-    </header>
-
-    <section id="about" class="section about-section reveal-up">
-        <div class="container">
-            <h2 class="section-title reveal-up" data-i18n="about.title">About</h2>
-            <div class="about-content">
-                <div class="about-text">
-                    <h3 data-i18n="about.subtitle">창의와 창작</h3>
-                    <p data-i18n="about.desc">3D 창작물을 통해 우리가 오랫동안 기억하고 싶은것, 이제는 볼수없는것, 현실에 없는것을 만들어냅니다. 그리고 그 배경에는 무료
-                        오픈소스
-                        프로그램 'Blender'가 있습니다.</p>
-                </div>
-                <div class="about-image">
-                    <img src="3d 동아리 무색 로고.png" alt="3D 동아리 심볼">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="gallery" class="section gallery-section">
-        <div class="container">
-            <h2 class="section-title" data-i18n="gallery.title">Gallery</h2>
-            <p class="section-subtitle" data-i18n="gallery.subtitle">부원들의 열정이 담긴 작품들입니다.</p>
-            <div class="gallery-grid">
-                <!-- Gallery items will be rendered dynamically -->
-            </div>
-            <div class="gallery-btns">
-                <a href="gallery.html" class="cta-button" data-i18n="gallery.more">더 많은 작품 보기</a>
-                <a href="exhibition.html" class="cta-button secondary" data-i18n="gallery.exhibition">가상 전시관 입장</a>
-            </div>
-        </div>
-    </section>
-
-    <section id="pursuit" class="section workflow-section">
-        <div class="container">
-            <h2 class="section-title">pursuit</h2>
-            <div class="about-content">
-                <div class="about-text">
-                    <h3 data-i18n="pursuit.subtitle">pursuit</h3>
-                    <div style="text-align: center; margin-top: 3rem;">
-                        <a href="pursuit.html" class="cta-button" data-i18n="pursuit.more">동아리의 방향</a>
-                    </div>
-                </div>
-                <div class="about-image">
-                    <img src="3d 동아리 로고.png" alt="3D 동아리 심볼">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="workflow-section" id="workflow">
-        <div class="container">
-            <h2 class="section-title">Workflow</h2>
-            <p class="section-subtitle">Ideas into Reality</p>
-
-            <!-- Auto Tour Removed -->
-
-            <!-- Neon Node System Container -->
-            <div class="workflow-system">
-                <!-- Central Pipeline -->
-                <div class="workflow-pipeline">
-                    <div class="pipeline-fill"></div>
-                </div>
-
-                <!-- Nodes -->
-                <!-- Node 01 -->
-                <div class="workflow-node-item left-branch">
-                    <div class="node-connector"></div>
-                    <div class="node-point"></div>
-                    <div class="workflow-card glass-card hover-glow">
-                        <div class="node-number-bg">01</div>
-                        <h3 data-i18n="workflow.step1.title">아이디어</h3>
-                        <p data-i18n="workflow.step1.desc">무엇을 만들지 상상하고 구체화합니다.</p>
-                    </div>
-                </div>
-
-                <!-- Node 02 -->
-                <div class="workflow-node-item right-branch">
-                    <div class="node-connector"></div>
-                    <div class="node-point"></div>
-                    <div class="workflow-card glass-card hover-glow">
-                        <div class="node-number-bg">02</div>
-                        <h3 data-i18n="workflow.step2.title">기획</h3>
-                        <p data-i18n="workflow.step2.desc">레퍼런스를 수집하고 전체적인 설계를 합니다.</p>
-                    </div>
-                </div>
-
-                <!-- Node 03 -->
-                <div class="workflow-node-item left-branch">
-                    <div class="node-connector"></div>
-                    <div class="node-point"></div>
-                    <div class="workflow-card glass-card hover-glow">
-                        <div class="node-number-bg">03</div>
-                        <h3 data-i18n="workflow.step3.title">모델링</h3>
-                        <p data-i18n="workflow.step3.desc">3D 공간에 물체의 형태를 만듭니다.</p>
-                    </div>
-                </div>
-
-                <!-- Node 04 -->
-                <div class="workflow-node-item right-branch">
-                    <div class="node-connector"></div>
-                    <div class="node-point"></div>
-                    <div class="workflow-card glass-card hover-glow">
-                        <div class="node-number-bg">04</div>
-                        <h3 data-i18n="workflow.step4.title">리깅/애니메이팅</h3>
-                        <p data-i18n="workflow.step4.desc">뼈대를 심고 움직임을 부여합니다.</p>
-                    </div>
-                </div>
-
-                <!-- Node 05 -->
-                <div class="workflow-node-item left-branch">
-                    <div class="node-connector"></div>
-                    <div class="node-point"></div>
-                    <div class="workflow-card glass-card hover-glow">
-                        <div class="node-number-bg">05</div>
-                        <h3 data-i18n="workflow.step5.title">텍스쳐링</h3>
-                        <p data-i18n="workflow.step5.desc">재질과 색상을 입혀 리얼리티를 더합니다.</p>
-                    </div>
-                </div>
-
-                <!-- Node 06 -->
-                <div class="workflow-node-item right-branch">
-                    <div class="node-connector"></div>
-                    <div class="node-point"></div>
-                    <div class="workflow-card glass-card hover-glow">
-                        <div class="node-number-bg">06</div>
-                        <h3 data-i18n="workflow.step6.title">렌더</h3>
-                        <p data-i18n="workflow.step6.desc">조명과 카메라를 설정하여 최종 이미지를 출력합니다.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- New Redirect Button -->
-            <div class="workflow-footer-cta">
-                <a href="3dexperience.html" class="experience-cta-btn" data-i18n="workflow.start_experience">
-                    <span class="btn-icon">⚡</span>
-                    <span class="btn-text">직접 경험해보기</span>
-                </a>
-                <p class="cta-subtext" data-i18n="workflow.start_experience_sub">웹 브라우저에서 바로 작동하는 3D 가상 스튜디오를 체험해보세요.
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <section id="contact-form-section" class="section contact-form-section">
-        <div class="container">
-            <h2 class="section-title" data-i18n="contact.title">문의하기</h2>
-            <p class="section-subtitle" data-i18n="contact.subtitle">무엇이든 물어보세요! 신속하게 답변해 드리겠습니다.</p>
-
-            <div class="contact-form-container glass-card fade-in">
-                <form id="contact-form" class="main-contact-form">
-                    <div class="form-row">
-                        <div class="input-group">
-                            <label for="contact-name" data-i18n="contact.name">이름</label>
-                            <input type="text" id="contact-name" name="name" required>
-                            <div class="input-glow"></div>
-                        </div>
-                        <div class="input-group">
-                            <label for="contact-info" data-i18n="contact.info">연락처 (이메일/번호)</label>
-                            <input type="text" id="contact-info" name="contact_info" required>
-                            <div class="input-glow"></div>
-                        </div>
-                    </div>
-                    <div class="input-group">
-                        <label for="contact-message" data-i18n="contact.message">문의 내용</label>
-                        <textarea id="contact-message" name="message" rows="5" required></textarea>
-                        <div class="input-glow"></div>
-                    </div>
-
-                    <div class="input-group agreement-group" style="margin-top: 0.5rem;">
-                        <div class="checkbox-container">
-                            <input type="checkbox" id="privacy-agreement" name="privacy_agreement" required>
-                            <label for="privacy-agreement" data-i18n="contact.privacy_label">개인정보 수집 및 이용에
-                                동의합니다.</label>
-                            <button type="button" class="details-link" id="view-privacy-btn"
-                                data-i18n="contact.privacy_details">자세히</button>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="cta-button" id="contact-submit-btn">
-                        <span data-i18n="contact.submit">문의 보내기</span>
-                        <span class="btn-icon">✉️</span>
-                    </button>
-                </form>
-                <div id="contact-success" class="contact-success hidden">
-                    <div class="success-icon">✅</div>
-                    <h3 data-i18n="contact.success">문의가 성공적으로 전송되었습니다!</h3>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer id="contact">
-        <div class="container footer-content">
-            <div class="footer-logo">
-                <img src="3d 동아리 무색 로고.png" alt="Footer Logo">
-                <p data-i18n="footer.club">진부중학교 3D 동아리</p>
-            </div>
-            <div class="footer-info">
-                <p class="footer-address-line">
-                    <span data-i18n="footer.address">강원특별자치도 평창군 진부면</span>
-                    <span class="footer-separator">|</span>
-                    <span class="footer-social">
-                        <a href="https://www.youtube.com/@%EC%A7%84%EB%B6%80%EC%A4%913DVFX%EB%8F%99%EC%95%84%EB%A6%AC"
-                            class="social-icon youtube" target="_blank" aria-label="YouTube">
-                            <svg viewBox="0 0 24 24">
-                                <path
-                                    d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                            </svg>
-                        </a>
-                        <a href="https://www.instagram.com/jinbu_3d/" class="social-icon instagram" target="_blank"
-                            aria-label="Instagram">
-                            <svg viewBox="0 0 24 24">
-                                <path
-                                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.981 1.28.058 1.688.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
-                            </svg>
-                        </a>
-                    </span>
-                </p>
-                <p>&copy; 2026 진부중학교 3D 동아리. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Floating Action Button for Recruitment -->
-    <a href="join.html" class="floating-join-btn">
-        <div class="btn-pulse"></div>
-        <span class="btn-text" data-i18n="nav.join">부원 모집</span>
-        <span class="btn-icon">✨</span>
+  <!-- 내비게이션 -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo">
+      <img src="Color_Logo.png" alt="진부중 3D 동아리 로고" onerror="this.style.display='none'" />
+      <span class="nav-logo-text">진부중학교 3D 동아리</span>
     </a>
+    <div class="nav-links">
+      <a href="index.html">홈</a>
+      <a href="about.html">동아리 소개</a>
+      <a href="activity.html">활동 내용</a>
+      <a href="works.html">작품</a>
+      <a href="demo_file.html">데모파일</a>
+      <a href="gallery.html">갤러리</a>
+      <a href="notice.html">공지사항</a>
+      <a href="contact.html">문의</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="메뉴 열기">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <nav class="nav-mobile" id="navMobile">
+    <a href="index.html">홈</a>
+    <a href="about.html">동아리 소개</a>
+    <a href="activity.html">활동 내용</a>
+    <a href="works.html">작품</a>
+    <a href="demo_file.html">데모파일</a>
+    <a href="gallery.html">갤러리</a>
+    <a href="notice.html">공지사항</a>
+    <a href="contact.html">문의</a>
+  </nav>
 
-    <script src="gallery-data.js"></script>
-    <script src="translations.js"></script>
-    <script src="script.js"></script>
-    <script>
-        // Apply version to all CSS and JS files
-        (function () {
-            if (window.CACHE_VERSION) {
-                var v = window.CACHE_VERSION;
-                var h = window.location.hostname;
-                document.querySelectorAll('link[rel="stylesheet"]').forEach(function (l) {
-                    if (l.href && !l.href.includes('fonts.googleapis.com') && !l.href.includes('?v=')) {
-                        l.href += (l.href.includes('?') ? '&' : '?') + 'v=' + v;
-                    }
-                });
-                document.querySelectorAll('script[src]').forEach(function (s) {
-                    if (s.src && !s.src.includes('version.js') && !s.src.includes('?v=')) {
-                        if (!s.src.includes('://') || s.src.includes(h)) {
-                            s.src += (s.src.includes('?') ? '&' : '?') + 'v=' + v;
-                        }
-                    }
-                });
-            }
-        })();
-    </script>
-    <!-- Privacy Policy Modal -->
-    <div id="privacy-modal" class="modal-overlay hidden">
-        <div class="modal-content glass-card" style="max-width: 500px; width: 90%; background: rgba(30, 41, 59, 0.95);">
-            <h3 class="hero-title"
-                style="font-size: 1.8rem; margin-bottom: 1.5rem; text-align: center; -webkit-text-fill-color: initial; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; color: transparent;"
-                data-i18n="contact.privacy_title">문의하기 개인정보 수집 및 이용 안내</h3>
-            <div class="privacy-content-box">
-                <p id="privacy-text" style="white-space: pre-wrap; font-size: 0.9rem; line-height: 1.6; color: #cbd5e1;"
-                    data-i18n="contact.privacy_content">
-                </p>
-            </div>
-            <div class="modal-actions" style="margin-top: 2rem;">
-                <button type="button" id="privacy-close-btn" class="cta-button" style="width: 100%;"
-                    data-i18n="common.confirm">확인</button>
-            </div>
-        </div>
+  <!-- 히어로 -->
+  <section class="hero">
+    <div class="video-bg-container">
+      <video id="bg-video" class="video-bg-content" autoplay muted loop playsinline>
+        <source
+          src="https://res.cloudinary.com/dfrh0djn3/video/upload/v1777538955/%ED%99%88%ED%8E%98%EC%9D%B4%EC%A7%80%EC%9A%A9_1%EC%B0%A8_wgtt9q.mp4"
+          type="video/mp4">
+      </video>
     </div>
 
-    <script>
-        // Welcome Popup Logic
-        (function() {
-            const POPUP_HIDDEN_DATE_KEY = 'welcomePopupHiddenDate';
-            const popupModal = document.getElementById('welcome-popup-modal');
-            const closeBtn = document.getElementById('popup-close-btn');
-            const closeMainBtn = document.getElementById('popup-close-main-btn');
-            const todayHideBtn = document.getElementById('popup-today-hide-btn');
+    <!-- 어두운 오버레이 -->
+    <div class="video-overlay"></div>
 
-            function getTodayDate() {
-                const today = new Date();
-                return today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-            }
+    <div class="hero-content">
+      <button class="hero-label" id="countBtn">Hello, Art World!</button>
+      <h1>
+        진부중 3D 동아리
+      </h1>
+      <hr style="border: 1px; background-image: linear-gradient(to right,#04ADC0, #5D68A6); width: 70%; height: 2px;">
+      <p class="hero-desc">
+        상상을 현실로, 창작의 세계.
+      </p>
+      <div class="hero-btns">
+        <a href="about.html" class="btn btn-primary">동아리 소개 →</a>
+        <a href="works.html" class="btn btn-outline">작품 보기</a>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <div class="scroll-mouse">
+        <div class="scroll-wheel"></div>
+      </div>
+      <span>SCROLL</span>
+    </div>
+  </section>
 
-            function showPopup() {
-                if (!popupModal) return;
-                popupModal.classList.remove('hidden');
-                requestAnimationFrame(function() {
-                    popupModal.classList.add('active');
-                });
-            }
+  <!-- 빠른 링크 카드 -->
+  <section class="nav-cards">
+    <div style="max-width:1140px; margin-inline:auto;">
+      <div class="section-header reveal">
+        <span class="section-label">EXPLORE</span>
+        <h2 class="section-title">탐구</h2>
+      </div>
+      <div class="nav-cards-grid">
+        <a href="about.html" class="nav-card reveal">
+          <div class="nav-card-icon"><span>소개</span></div>
+          <h3>동아리 소개</h3>
+          <p>진부중학교 3D 동아리의 시작, 목표, 구성원을 소개합니다.</p>
+          <span class="nav-card-arrow">→</span>
+        </a>
+        <a href="activity.html" class="nav-card reveal reveal-delay-1">
+          <div class="nav-card-icon"><span>활동</span></div>
+          <h3>활동 내용</h3>
+          <p>3D 모델링, 렌더링, 애니메이션 등 다양한 활동을 확인하세요.</p>
+          <span class="nav-card-arrow">→</span>
+        </a>
+        <a href="works.html" class="nav-card reveal reveal-delay-2">
+          <div class="nav-card-icon"><span>작품</span></div>
+          <h3>작품</h3>
+          <p>동아리원들이 만든 3D 작품들을 감상하세요. <br><strong style="color: #118cbd;">잠깐 감상해보세요.</strong></p>
+          <span class="nav-card-arrow">→</span>
+        </a>
+        <a href="gallery.html" class="nav-card reveal reveal-delay-3">
+          <div class="nav-card-icon"><span>갤러리</span></div>
+          <h3>갤러리</h3>
+          <p>활동 사진과 영상 모음을 둘러보세요.</p>
+          <span class="nav-card-arrow">→</span>
+        </a>
+        <a href="notice.html" class="nav-card reveal reveal-delay-1">
+          <div class="nav-card-icon"><span>공지</span></div>
+          <h3>공지사항</h3>
+          <p>동아리의 최신 소식과 공지를 확인하세요.</p>
+          <span class="nav-card-arrow">→</span>
+        </a>
+        <a href="contact.html" class="nav-card reveal reveal-delay-2">
+          <div class="nav-card-icon"><span>문의</span></div>
+          <h3>문의 &amp; 연락처</h3>
+          <p>동아리에 가입하거나 궁금한 점을 문의하세요.</p>
+          <span class="nav-card-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
 
-            function hidePopup() {
-                if (!popupModal) return;
-                popupModal.classList.remove('active');
-                setTimeout(function() {
-                    popupModal.classList.add('hidden');
-                }, 300);
-            }
+  <!-- 동아리 소개 미리보기 -->
+  <section class="section intro-section">
+    <div class="container">
+      <div class="intro-grid">
+        <div class="intro-visual reveal">
+          <canvas id="about-cube-canvas" class="about-cube-canvas"></canvas>
+        </div>
+        <div>
+          <div class="reveal">
+            <span class="section-label">ABOUT US</span>
+            <h2 class="section-title mt-2">3D로 세상을 <span>표현하다</span></h2>
+          </div>
+          <div class="reveal reveal-delay-1">
+            <p style="color:var(--c-text-sub); margin-top:1rem; line-height:1.9;">
+              <strong style="color:var(--c-teal)">진부중학교 3D 동아리</strong>는 3D 모델링, 렌더링, 애니메이션을
+              배우고 창작하는<br> 동아리입니다. 다양한 소프트웨어 및 장비를 활용해 아이디어를 구현하며,<br>
+              자유로운 표현을 중시하며 창의적인 작품을 만들어갑니다. <br><br>
+            </p>
+            <a href="about.html" class="btn btn-primary mt-4" style="display:inline-flex;">자세히 보기 →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-            function hidePopupForToday() {
-                const today = getTodayDate();
-                localStorage.setItem(POPUP_HIDDEN_DATE_KEY, today);
-                hidePopup();
-            }
+  <!-- 공지사항 미리보기 -->
+  <section class="section" style="background:var(--c-bg);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">NOTICE</span>
+        <h2 class="section-title">공지사항</h2>
+        <div class="divider"></div>
+      </div>
+      <div style="max-width:720px; margin-inline:auto;">
+        <div class="notice-item reveal">
+          <span class="notice-date">2026.04.10</span>
+          <span class="notice-title">2026년도 동아리원 모집 안내</span>
+          <span class="notice-new">NEW</span>
+        </div>
+        <div class="notice-item reveal reveal-delay-1">
+          <span class="notice-date">2026.03.25</span>
+          <span class="notice-title">2분기 활동 일정 공지</span>
+          <span class="notice-new">NEW</span>
+        </div>
+        <div class="notice-item reveal reveal-delay-2">
+          <span class="notice-date">2026.03.01</span>
+          <span class="notice-title">2025년 작품 전시회 결과 안내</span>
+          <span class="notice-new"></span>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:2rem;" class="reveal">
+        <a href="notice.html" class="btn btn-outline">전체 공지 보기</a>
+      </div>
+    </div>
+  </section>
 
-            // Event listeners
-            if (closeBtn) closeBtn.addEventListener('click', hidePopup);
-            if (closeMainBtn) closeMainBtn.addEventListener('click', hidePopup);
-            if (todayHideBtn) todayHideBtn.addEventListener('click', hidePopupForToday);
+  <!-- 키워드 배너 -->
+  <section style="background:var(--grad-hero); padding:4rem 5%; text-align:center; position:relative; overflow:hidden;">
+    <div style="position:relative; z-index:2;">
+      <p class="font-accent"
+        style="color:rgba(255,255,255,0.6); font-size:0.85rem; letter-spacing:0.1em; margin-bottom:1rem;">너, 인재?</p>
+      <div class="tags-row" style="justify-content:center;">
+        <span
+          style="padding:0.6rem 1.5rem; background:rgba(255,255,255,0.15); border:2px solid rgba(255,255,255,0.4); border-radius:30px; color:#fff; font-size:0.9rem;">아이디어</span>
+        <span
+          style="padding:0.6rem 1.5rem; background:rgba(255,255,255,0.15); border:2px solid rgba(255,255,255,0.4); border-radius:30px; color:#fff; font-size:0.9rem;">애니메이션</span>
+        <span
+          style="padding:0.6rem 1.5rem; background:rgba(255,255,255,0.15); border:2px solid rgba(255,255,255,0.4); border-radius:30px; color:#fff; font-size:0.9rem;">디자인</span>
+        <span
+          style="padding:0.6rem 1.5rem; background:rgba(255,255,255,0.15); border:2px solid rgba(255,255,255,0.4); border-radius:30px; color:#fff; font-size:0.9rem;">모델링</span>
+        <span
+          style="padding:0.6rem 1.5rem; background:rgba(255,255,255,0.15); border:2px solid rgba(255,255,255,0.4); border-radius:30px; color:#fff; font-size:0.9rem;">창작</span>
+      </div>
+      <a href="contact.html" class="btn mt-4"
+        style="display:inline-flex; background:rgba(255,255,255,0.9); color:var(--c-teal); margin-top:2rem;">동아리 문의하기
+        →</a>
+    </div>
+  </section>
 
-            // Close popup when clicking outside
-            if (popupModal) {
-                popupModal.addEventListener('click', function(e) {
-                    if (e.target === popupModal) {
-                        hidePopup();
-                    }
-                });
-            }
+  <!-- 푸터 -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo">진부중학교 3D 동아리</div>
+        <p>상상을 현실로, 창작의 세계<br /></p>
+      </div>
+      <div class="footer-col">
+        <h4>메뉴</h4>
+        <ul>
+          <li><a href="about.html">동아리 소개</a></li>
+          <li><a href="activity.html">활동 내용</a></li>
+          <li><a href="works.html">작품</a></li>
+          <li><a href="gallery.html">갤러리</a></li>
+          <li><a href="notice.html">공지사항</a></li>
+          <li><a href="contact.html">문의</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>연락처</h4>
+        <ul>
+          <li><a href="mailto:contact@jb3d.xyz">contact@jb3d.xyz</a></li>
+          <li><a href="contact.html">오는 길</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 진부중학교 3D 동아리. All rights reserved.
+    </div>
+  </footer>
 
-            // Show popup unless it was hidden for today.
-            if (popupModal && document.documentElement.getAttribute('data-hide-popup') !== 'true') {
-                showPopup();
-            }
-        })();
-    </script>
+  <script type="module" src="dataService.js?v=2026-04-25-1"></script>
+  <script src="main.js?v=2026-04-25-1"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 파티클 및 3D 큐브 초기화
+
+      init3DCube('about-cube-canvas', {
+        scale: 100,
+        speedX: 0.007,
+        speedY: 0.01,
+        interactive: true
+      });
+
+      // 최신 공지사항 렌더링 (최대 3개)
+      const noticePreviewContainer = document.querySelector('.section[style*="background:var(--c-bg)"] div[style*="max-width:720px"]');
+      if (noticePreviewContainer) {
+        try {
+          if (!window.dataService) {
+            console.warn("dataService가 아직 로드되지 않았습니다.");
+            throw new Error("dataService 초기화 실패");
+          }
+
+          const notices = await window.dataService.getNotices();
+          noticePreviewContainer.innerHTML = '';
+
+          if (notices.length === 0) {
+            noticePreviewContainer.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:2rem;">공지사항이 없습니다.</div>';
+          } else {
+            notices.slice(0, 3).forEach((n, index) => {
+              const item = document.createElement('div');
+              item.className = `notice-item reveal`;
+              if (index > 0) item.classList.add(`reveal-delay-${index}`);
+              item.innerHTML = `
+                <span class="notice-date">${n.date}</span>
+                <span class="notice-title" style="cursor:pointer" onclick="location.href='notice.html'">${n.title}</span>
+                ${n.isNew ? '<span class="notice-new">NEW</span>' : ''}
+              `;
+              noticePreviewContainer.appendChild(item);
+            });
+          }
+
+          if (window.initScrollReveal) window.initScrollReveal();
+        } catch (error) {
+          console.error("공지사항 로드 실패:", error);
+          noticePreviewContainer.innerHTML = '<div style="text-align:center; color:#ef4444; padding:2rem;">공지사항을 불러올 수 없습니다.</div>';
+        }
+      }
+    });
+  </script>
+  <script>
+    let count = 0;
+    const btn = document.getElementById('countBtn');
+
+    btn.addEventListener('click', () => {
+      count++;
+
+      // 3번 클릭 전까지는 경고 문구
+      if (count < 3) {
+        btn.innerText = '누르지 마세요.';
+        setTimeout(() => { btn.innerText = 'Hello, Art World!'; }, 500);
+      }
+
+      // 정확히 3번 클릭했을 때 이벤트 발동
+      else if (count === 3) {
+        console.log("easter egg : 네르지 마세요!");
+        const textArray = ["학교의 전설을 아시나  요?", "4시40분이 되면", "퇴근송이 울립니다.", "그거 제가 편집했어요.", "4번 수정했답니다...", "Hllo, Art World!"];
+        let i = 0;
+
+        // setInterval을 변수에 담아야 나중에 멈출 수 있어요
+        const timer = setInterval(() => {
+          btn.innerText = textArray[i];
+          i++;
+
+          // 마지막 텍스트까지 나오면 반복 종료
+          if (i === textArray.length) {
+            clearInterval(timer);
+            count = 0; // 다시 처음부터 할 수 있게 초기화
+          }
+        }, 3000);
+      }
+    });
+  </script>
 </body>
 
 </html>

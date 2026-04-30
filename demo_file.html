@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <!-- 메타 데이터 및 외부 라이브러리 설정 -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- 브라우저 캐시 방지 설정 -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="icon" type="image/png" href="web_icon.png" />
+  <title>데모파일 – 진부중학교 3D 동아리</title>
+  <meta name="description" content="진부중학교 3D 동아리 학생들의 3D 작품을 감상하세요." />
+  <link rel="stylesheet" href="style.css?v=2026-04-25-1" />
+  <!-- 마크다운 렌더링 라이브러리 -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    /* 카테고리 필터 바 스타일 */
+    .filter-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .filter-btn {
+      padding: 0.5rem 1.25rem;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1.5px solid rgba(4, 173, 192, 0.25);
+      color: var(--c-text-sub);
+      background: transparent;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: var(--grad-main);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    /* 작품 그리드 레이아웃 (반응형) */
+    .works-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 860px) {
+      .works-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 500px) {
+      .works-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .work-item {
+      position: relative;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid rgba(4, 173, 192, 0.25);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+
+    .work-item:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .work-thumb {
+      width: 100%;
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .work-thumb-label {
+      font-family: var(--f-accent);
+      font-size: 1.6rem;
+      color: rgba(255, 255, 255, 0.85);
+      letter-spacing: 0.05em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .work-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 1.25rem;
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .work-item:hover .work-overlay {
+      opacity: 1;
+    }
+
+    .work-title {
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .work-meta {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.8rem;
+      margin-top: 0.25rem;
+    }
+
+    .work-info {
+      padding: 1rem 1.25rem;
+      background: var(--c-card);
+    }
+
+    .work-info h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .work-info p {
+      font-size: 0.8rem;
+      color: var(--c-text-sub);
+    }
+
+    .work-info .tags {
+      display: flex-start;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 다운로드 페이지 -->
+  <!-- 내비게이션 -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo">
+      <img src="Color_Logo.png" alt="진부중 3D 동아리 로고" onerror="this.style.display='none'" />
+      <span class="nav-logo-text">진부중학교 3D 동아리</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">홈</a>
+      <a href="about.html">동아리 소개</a>
+      <a href="activity.html">활동 내용</a>
+      <a href="works.html">작품</a>
+      <a href="demo_file.html">데모파일</a>
+      <a href="gallery.html">갤러리</a>
+      <a href="notice.html">공지사항</a>
+      <a href="contact.html">문의</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="메뉴 열기">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <nav class="nav-mobile" id="navMobile">
+    <a href="index.html">홈</a>
+    <a href="about.html">동아리 소개</a>
+    <a href="activity.html">활동 내용</a>
+    <a href="works.html">작품</a>
+    <a href="demo_file.html">데모파일</a>
+    <a href="gallery.html">갤러리</a>
+    <a href="notice.html">공지사항</a>
+    <a href="contact.html">문의</a>
+  </nav>
+
+  <section class="page-hero">
+    <div class="page-hero-content">
+      <span class="section-label"
+        style="color:rgba(255,255,255,0.8); background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25);">WORKS</span>
+      <h1 style="margin-top:0.75rem;">데모파일</h1>
+      <p>동아리 자료를 다운받을수 있습니다.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">DEMO FILES</span>
+        <h2 class="section-title">데모파일 <span>다운로드</span></h2>
+        <div class="divider"></div>
+      </div>
+
+      <!-- 필터 바: 작품 카테고리별 분류 -->
+      <div class="filter-bar reveal">
+        <button class="filter-btn active" data-filter="all">전체</button>
+        <button class="filter-btn" data-filter="project">프로젝트</button>
+        <button class="filter-btn" data-filter="model">3D 모델</button>
+        <button class="filter-btn" data-filter="data">자료</button>
+        <button class="filter-btn" data-filter="program">프로그램</button>
+      </div>
+
+      <!-- 작품 목록 그리드: 동적으로 내용이 채워짐 -->
+      <div class="works-grid" id="worksGrid">
+        <div class="work-item reveal" data-category="project">
+          <div class="work-thumb" style="background:linear-gradient(135deg,#04ADC0,#5D68A6);">
+            <span class="work-thumb-label">프로젝트</span>
+          </div>
+          <div class="work-overlay">
+            <div class="work-title">미래 도시 건물</div>
+            <div class="work-meta">3D 모델링 · 2025</div>
+          </div>
+          <div class="work-info">
+            <h3>미래 도시 건물</h3>
+            <p>블렌더로 제작한 SF 스타일 건물 모델</p>
+            <div class="tags"><span class="badge">모델링</span><span class="badge">Blender</span></div>
+          </div>
+        </div>
+
+        <div class="work-item reveal reveal-delay-1" data-category="model">
+          <div class="work-thumb" style="background:linear-gradient(135deg,#9C7BA6,#03D9D9);">
+            <span class="work-thumb-label">3D 모델</span>
+          </div>
+          <div class="work-overlay">
+            <div class="work-title">수면 위의 반영</div>
+            <div class="work-meta">렌더링 · 2025</div>
+          </div>
+          <div class="work-info">
+            <h3>수면 위의 반영</h3>
+            <p>Cycles 렌더러로 제작한 사실적인 수면 반영 장면</p>
+            <div class="tags"><span class="badge">렌더링</span><span class="badge">Cycles</span></div>
+          </div>
+        </div>
+
+        <div class="work-item reveal reveal-delay-2" data-category="data">
+          <div class="work-thumb" style="background:linear-gradient(135deg,#56BF7C,#04ADC0);">
+            <span class="work-thumb-label">자료</span>
+          </div>
+          <div class="work-overlay">
+            <div class="work-title">로봇 워킹 사이클</div>
+            <div class="work-meta">에셋 · 2025</div>
+          </div>
+          <div class="work-info">
+            <h3>로봇 워킹 사이클</h3>
+            <p>리깅과 키프레임 애니메이션으로 완성한 로봇 캐릭터</p>
+            <div class="tags"><span class="badge">에셋</span><span class="badge">리깅</span></div>
+          </div>
+        </div>
+
+        <div class="work-item reveal" data-category="program">
+          <div class="work-thumb" style="background:linear-gradient(135deg,#5D68A6,#56BF7C);">
+            <span class="work-thumb-label">프로그램</span>
+          </div>
+          <div class="work-overlay">
+            <div class="work-title">도시 재생 프로젝트</div>
+            <div class="work-meta">프로그램 · 2025</div>
+          </div>
+          <div class="work-info">
+            <h3>도시 재생 프로젝트</h3>
+            <p>팀이 함께 제작한 가상 도시 환경 씬</p>
+            <div class="tags"><span class="badge">프로젝트</span><span class="badge">팀작업</span></div>
+          </div>
+        </div>
+
+        <div class="work-item reveal reveal-delay-1" data-category="model">
+          <div class="work-thumb" style="background:linear-gradient(135deg,#03D9D9,#9C7BA6);">
+            <span class="work-thumb-label">3D 모델</span>
+          </div>
+          <div class="work-overlay">
+            <div class="work-title">스컬팅 – 얼굴 습작</div>
+            <div class="work-meta">모델 · 2026</div>
+          </div>
+          <div class="work-info">
+            <h3>스컬팅 – 얼굴 습작</h3>
+            <p>블렌더 스컬팅 모드로 연습한 얼굴 조각</p>
+            <div class="tags"><span class="badge">모델링</span><span class="badge">스컬팅</span></div>
+          </div>
+        </div>
+
+        <div class="work-item reveal reveal-delay-2" data-category="model">
+          <div class="work-thumb" style="background:linear-gradient(135deg,#04ADC0,#56BF7C);">
+            <span class="work-thumb-label">3D 모델</span>
+          </div>
+          <div class="work-overlay">
+            <div class="work-title">자연 환경 렌더링</div>
+            <div class="work-meta">모델 · 2026</div>
+          </div>
+          <div class="work-info">
+            <h3>자연 환경 렌더링</h3>
+            <p>숲 속 아침 풍경을 사실적으로 표현한 렌더링</p>
+            <div class="tags"><span class="badge">렌더링</span><span class="badge">자연</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal"
+        style="text-align:center; margin-top:3rem; padding:2rem; background:rgba(4,173,192,0.04); border:2px dashed rgba(4,173,192,0.4); border-radius:var(--radius-md);">
+        <p style="color:var(--c-text-sub); font-size:0.9rem; margin-bottom:1rem;">
+          더 많은 작품이 업로드될 예정입니다. 작품을 공유하고 싶다면 문의해주세요.
+        </p>
+        <a href="contact.html" class="btn btn-outline">작품 제출 문의</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo">진부중 3D 동아리</div>
+        <p>진부중학교 3D 동아리<br />3D 모델링 · 렌더링 · 애니메이션</p>
+      </div>
+      <div class="footer-col">
+        <h4>메뉴</h4>
+        <ul>
+          <li><a href="about.html">동아리 소개</a></li>
+          <li><a href="activity.html">활동 내용</a></li>
+          <li><a href="works.html">작품</a></li>
+          <li><a href="gallery.html">갤러리</a></li>
+          <li><a href="notice.html">공지사항</a></li>
+          <li><a href="contact.html">문의</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>연락처</h4>
+        <ul>
+          <li><a href="mailto:contact@jb3d.xyz">contact@jb3d.xyz</a></li>
+          <li><a href="contact.html">오는 길</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2026 진부중학교 3D 동아리. All rights reserved.</div>
+  </footer>
+
+  <!-- 데이터 서비스 및 공통 스크립트 로드 -->
+  <script type="module" src="dataService.js?v=2026-04-25-1"></script>
+  <script src="main.js?v=2026-04-25-1"></script>
+  <script type="module">
+    /**
+     * Firebase에서 데모파일 목록을 가져와 화면에 렌더링하는 함수
+     */
+    async function renderWorks() {
+      // dataService가 초기화될 때까지 대기
+      const checkDS = setInterval(async () => {
+        if (window.dataService) {
+          clearInterval(checkDS);
+          const ds = window.dataService;
+          const grid = document.getElementById('worksGrid');
+          const filterBtns = document.querySelectorAll('.filter-btn');
+
+          grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding: 3rem;">파일을 불러오는 중...</p>';
+
+          // Firebase Firestore에서 데모파일 데이터 요청
+          const files = await ds.getDemoFiles();
+
+          /**
+           * 지정된 필터에 따라 파일을 화면에 표시
+           * @param {string} filter - 카테고리 필터 ('all' 또는 카테고리명)
+           */
+          function display(filter = 'all') {
+            grid.innerHTML = '';
+            const filtered = files.filter(f => filter === 'all' || f.category === filter);
+
+            if (filtered.length === 0) {
+              grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding: 3rem;">등록된 파일이 없습니다.</p>';
+              return;
+            }
+
+            // 필터링된 파일들을 HTML 요소로 생성하여 추가
+            filtered.forEach((f, index) => {
+              const item = document.createElement('div');
+              item.className = 'work-item reveal';
+              // 순차적 등장 애니메이션을 위한 지연 클래스 추가
+              if (index > 0) item.classList.add(`reveal-delay-${Math.min(index, 3)}`);
+              item.dataset.category = f.category;
+
+              // 썸네일 배경색 설정 (이미지 대신 그라데이션 사용)
+              const gradients = {
+                modeling: 'linear-gradient(135deg,#04ADC0,#5D68A6)',
+                render: 'linear-gradient(135deg,#9C7BA6,#03D9D9)',
+                animation: 'linear-gradient(135deg,#56BF7C,#04ADC0)',
+                project: 'linear-gradient(135deg,#5D68A6,#56BF7C)'
+              };
+              const bg = gradients[f.category] || gradients.modeling;
+
+              const thumbContent = f.previewImageUrl 
+                ? `<img src="${f.previewImageUrl}" alt="${f.title}" style="width:100%; height:100%; object-fit:cover;">`
+                : `<span class="work-thumb-label">${f.category.toUpperCase()}</span>`;
+              const thumbBg = f.previewImageUrl ? 'none' : bg;
+
+              item.innerHTML = `
+              <div class="work-thumb" style="background:${thumbBg};">
+                ${thumbContent}
+              </div>
+              <div class="tags" style="margin-top:1rem; margin-left:0.8rem;">
+                <span class="badge">${f.category}</span>
+              </div>
+
+              <div class="work-info">
+                <h3>${f.title}</h3>
+                <div style="font-size:0.8rem; color:var(--c-text-sub); margin-bottom:0.5rem;">
+                  ${marked.parse(f.description || '')}
+                </div>
+                <div style="display:flex; justify-content:center; gap:0.5rem; flex-wrap:wrap;">
+                  <a href="${f.fileUrl}" target="_blank" class="btn btn-primary btn-sm">다운로드</a>
+                  ${f.githubUrl ? `
+                    <a href="${f.githubUrl}" target="_blank" class="btn btn-outline btn-sm">
+                      GitHub
+                    </a>
+                  ` : ''}
+                </div>
+              </div>
+              `;
+
+              grid.appendChild(item);
+            });
+
+            // 스크롤 애니메이션 재초기화
+            if (window.initScrollReveal) window.initScrollReveal();
+          }
+
+          // 필터 버튼 클릭 이벤트 리스너 등록
+          filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+              filterBtns.forEach(b => b.classList.remove('active'));
+              btn.classList.add('active');
+              display(btn.dataset.filter);
+            });
+          });
+
+          // 초기 로드 시 전체 파일 표시
+          display('all');
+        }
+      }, 50);
+    }
+
+    // DOM 로드 완료 후 실행
+    document.addEventListener('DOMContentLoaded', renderWorks);
+  </script>
+</body>
+
+</html>

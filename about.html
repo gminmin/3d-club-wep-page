@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="icon" type="image/png" href="web_icon.png" />
+  <title>동아리 소개 – 진부중학교 3D 동아리</title>
+  <meta name="description" content="진부중학교 3D 동아리의 소개, 목표, 구성원을 안내합니다." />
+  <link rel="stylesheet" href="style.css?v=2026-04-25-1" />
+  <style>
+    .mission-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 760px) {
+      .mission-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mission-card {
+      padding: 2rem 1.75rem;
+      background: var(--c-card);
+      border: 2px solid rgba(4, 173, 192, 0.25);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      text-align: center;
+    }
+
+    .mission-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .mission-icon-box {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-sm);
+      background: var(--grad-card);
+      border: 2px solid rgba(4, 173, 192, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-family: var(--f-accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .mission-icon-box span {
+      background: var(--grad-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .mission-card h3 {
+      font-size: 1.05rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .mission-card p {
+      color: var(--c-text-sub);
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+
+    /* 타임라인 */
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--c-teal), var(--c-indigo));
+      border-radius: 2px;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding: 0 0 2.5rem 2rem;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -1.6rem;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--grad-main);
+    }
+
+    .timeline-year {
+      font-family: var(--f-accent);
+      font-size: 0.85rem;
+      color: var(--c-teal);
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .timeline-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .timeline-desc {
+      font-size: 0.9rem;
+      color: var(--c-text-sub);
+      line-height: 1.7;
+    }
+
+    /* 멤버 카드 */
+    .member-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 900px) {
+      .member-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .member-card {
+      background: var(--c-card);
+      border: 2px solid rgba(4, 173, 192, 0.25);
+      border-radius: var(--radius-md);
+      padding: 1.75rem 1.25rem;
+      text-align: center;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .member-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .member-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--grad-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--f-accent);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 auto 0.85rem;
+    }
+
+    .member-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .member-role {
+      font-size: 0.8rem;
+      color: var(--c-teal);
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">
+      <img src="Color_Logo.png" alt="진부중 3D 동아리 로고" onerror="this.style.display='none'" />
+      <span class="nav-logo-text">진부중학교 3D 동아리</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">홈</a>
+      <a href="about.html">동아리 소개</a>
+      <a href="activity.html">활동 내용</a>
+      <a href="works.html">작품</a>
+      <a href="demo_file.html">데모파일</a>
+      <a href="gallery.html">갤러리</a>
+      <a href="notice.html">공지사항</a>
+      <a href="contact.html">문의</a>
+    </div>
+    <button class="nav-toggle" aria-label="메뉴 열기"><span></span><span></span><span></span></button>
+  </nav>
+  <nav class="nav-mobile">
+    <a href="index.html">홈</a>
+    <a href="about.html">동아리 소개</a>
+    <a href="activity.html">활동 내용</a>
+    <a href="works.html">작품</a>
+    <a href="demo_file.html">데모파일</a>
+    <a href="gallery.html">갤러리</a>
+    <a href="notice.html">공지사항</a>
+    <a href="contact.html">문의</a>
+  </nav>
+
+  <section class="page-hero">
+    <div class="page-hero-content">
+      <span class="section-label"
+        style="color:rgba(255,255,255,0.8); background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25);">ABOUT</span>
+      <h1 style="margin-top:0.75rem;">동아리 소개</h1>
+      <p>진부중학교 3D 동아리를 소개합니다.</p>
+    </div>
+  </section>
+
+  <!-- 미션 -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">PURPOSE</span>
+        <h2 class="section-title">추구하는 바</h2>
+        <div class="divider"></div>
+      </div>
+      <div class="mission-grid">
+        <div class="mission-card reveal">
+          <div class="mission-icon-box"><span>창작</span></div>
+          <h3>상상과 창작</h3>
+          <p>blender, premiere pro 등 소프트웨어를 활용해 모델링, 애니메이션, 렌더링을 배우고 창작합니다.</p>
+        </div>
+        <div class="mission-card reveal reveal-delay-1">
+          <div class="mission-icon-box"><span>협력</span></div>
+          <h3>협력과 성장</h3>
+          <p>서로 배우고 가르치는 문화 속에서 함께 성장하는 동아리를 지향합니다.</p>
+        </div>
+        <div class="mission-card reveal reveal-delay-2">
+          <div class="mission-icon-box"><span>공유</span></div>
+          <h3>공유와 배움</h3>
+          <p>서로의 생각을 공유하고 고민하며 함께 성장합니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 소개 -->
+  <section class="section" style="background:linear-gradient(135deg,rgba(4,173,192,0.04),rgba(93,104,166,0.04));">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">STORY</span>
+        <h2 class="section-title">진부중학교 3D <span>동아리 이야기</span></h2>
+      </div>
+      <div style="max-width:740px; margin-inline:auto; color:var(--c-text-sub); line-height:2; font-size:1rem;">
+        <p class="reveal">
+          <strong style="color:var(--c-teal)">진부중학교 3D 동아리</strong>는 창작에 흥미를 느낀 학생들이 모여
+          만든 동아리입니다. 모델링, 에니메이션을 기점으로 개발, 3D 프린팅까지 모든 창작의 언어로 동아리를 표현합니다.
+        </p>
+        <p class="reveal reveal-delay-1" style="margin-top:1.2rem;">
+          단순히 기술을 익히는 것을 넘어, 각자의 상상력을 창작이라는 언어로 표현하는 경험을 쌓습니다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 연혁 타임라인 -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">HISTORY</span>
+        <h2 class="section-title">연혁</h2>
+        <div class="divider"></div>
+      </div>
+      <div style="max-width:600px; margin-inline:auto;">
+        <div class="timeline">
+          <div class="timeline-item reveal">
+            <div class="timeline-year">2025/03</div>
+            <div class="timeline-title">진부중학교 3D 동아리 창설</div>
+            <div class="timeline-desc">창작에 관심 있는 학생들이 모여 동아리를 결성했습니다.</div>
+          </div>
+          <div class="timeline-item reveal reveal-delay-1">
+            <div class="timeline-year">2025/10</div>
+            <div class="timeline-title">첫 번째 애니메이션 제작</div>
+            <div class="timeline-desc">5분 내외의 짧은 애니메이션을 제작했습니다.</div>
+          </div>
+          <div class="timeline-item reveal reveal-delay-2">
+            <div class="timeline-year">2025/12</div>
+            <div class="timeline-title">공식 홈페이지 오픈</div>
+            <div class="timeline-desc">동아리 작품과 활동을 공유하기 위해 jb3d.xyz를 개설했습니다.</div>
+          </div>
+          <div class="timeline-item reveal reveal-delay-3">
+            <div class="timeline-year">2026/03</div>
+            <div class="timeline-title">2026학년도 3D 동아리 활동</div>
+            <div class="timeline-desc">더 많은 학생들이 참여하여 다양한 프로젝트를 진행할 예정입니다.</div>
+          </div>
+          <div class="timeline-item reveal reveal-delay-4">
+            <div class="timeline-year">2026/04</div>
+            <div class="timeline-title">시청자미디어재단 강원 영상단</div>
+            <div class="timeline-desc">강원시청자미디어센터 강원 영상단에 참여하여 여러 작품을 제작할 예정입니다.</div>
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <!-- 멤버 -->
+  <section class="section" style="background:linear-gradient(135deg,rgba(4,173,192,0.04),rgba(93,104,166,0.04));">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">MEMBERS</span>
+        <h2 class="section-title">구성원</h2>
+        <div class="divider"></div>
+      </div>
+      <div class="member-grid">
+        <div class="member-card reveal">
+          <div class="member-avatar">교사</div>
+          <div class="member-name">지도 교사</div>
+          <div class="member-role">조*현</div>
+        </div>
+        <div class="member-card reveal reveal-delay-1">
+          <div class="member-avatar">부장</div>
+          <div class="member-name">동아리 부장</div>
+          <div class="member-role">강*수</div>
+        </div>
+        <div class="member-card reveal reveal-delay-2">
+          <div class="member-avatar">부원</div>
+          <div class="member-name">동아리 부원</div>
+          <div class="member-role">최*호 외 2명</div>
+        </div>
+      </div>
+      <p class="text-center reveal" style="margin-top:2rem; color:var(--c-text-sub); font-size:0.9rem;">
+        2026년 신입 동아리 부원을 모집 중입니다. <a href="contact.html" style="color:var(--c-teal); font-weight:600;">→ 지원하기</a>
+      </p>
+  </section>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo">진부중학교 3D 동아리</div>
+        <p>진부중학교 3D 동아리<br />3D 모델링 · 렌더링 · 애니메이션</p>
+      </div>
+      <div class="footer-col">
+        <h4>메뉴</h4>
+        <ul>
+          <li><a href="about.html">동아리 소개</a></li>
+          <li><a href="activity.html">활동 내용</a></li>
+          <li><a href="works.html">작품</a></li>
+          <li><a href="gallery.html">갤러리</a></li>
+          <li><a href="notice.html">공지사항</a></li>
+          <li><a href="contact.html">문의</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>연락처</h4>
+        <ul>
+          <li><a href="mailto:contact@jb3d.xyz">contact@jb3d.xyz</a></li>
+          <li><a href="contact.html">오는 길</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2026 진부중학교 3D 동아리. All rights reserved.</div>
+  </footer>
+  <script src="main.js?v=2026-04-25-1"></script>
+</body>
+
+</html>

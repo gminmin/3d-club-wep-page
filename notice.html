@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="icon" type="image/png" href="web_icon.png" />
+  <title>공지사항 – 진부중학교 3D 동아리</title>
+  <meta name="description" content="진부중학교 3D 동아리의 공지사항을 확인하세요." />
+  <link rel="stylesheet" href="style.css?v=2026-04-25-1" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    .notice-list {
+      max-width: 800px;
+      margin-inline: auto;
+    }
+
+    .notice-card {
+      background: var(--c-card);
+      border: 2px solid rgba(4, 173, 192, 0.25);
+      border-radius: var(--radius-md);
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1rem;
+      transition: var(--transition);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .notice-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--grad-main);
+      border-radius: 4px;
+    }
+
+    .notice-card:hover {
+      transform: translateX(4px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .notice-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      justify-content: space-between;
+    }
+
+    .notice-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.5rem;
+    }
+
+    .notice-type {
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: var(--grad-main);
+      color: #fff;
+    }
+
+    .notice-type.event {
+      background: linear-gradient(135deg, #56BF7C, #04ADC0);
+    }
+
+    .notice-type.recruit {
+      background: linear-gradient(135deg, #9C7BA6, #5D68A6);
+    }
+
+    .notice-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+
+    .notice-card p {
+      font-size: 0.88rem;
+      color: var(--c-text-sub);
+      line-height: 1.7;
+    }
+
+    .notice-card-date {
+      font-size: 0.78rem;
+      color: var(--c-text-sub);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* 모달 */
+    .notice-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      background: rgba(12, 13, 13, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      border: 1px solid rgba(4, 173, 192, 0.2);
+    }
+
+    .notice-modal.open {
+      display: flex;
+    }
+
+    .modal-inner {
+      background: var(--c-bg);
+      border-radius: var(--radius-lg);
+      max-width: 640px;
+      width: 100%;
+      padding: 2.5rem;
+      position: relative;
+      box-shadow: var(--shadow-lg);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.5rem;
+      font-size: 1.5rem;
+      color: var(--c-text-sub);
+      cursor: pointer;
+      transition: color var(--transition);
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: var(--c-teal);
+    }
+
+    .modal-inner h2 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-meta {
+      font-size: 0.82rem;
+      color: var(--c-text-sub);
+      margin-bottom: 1.25rem;
+    }
+
+    .modal-body {
+      font-size: 0.92rem;
+      color: var(--c-text-sub);
+      line-height: 1.9;
+    }
+
+    /* 페이지네이션 */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 2.5rem;
+    }
+
+    .page-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1.5px solid rgba(4, 173, 192, 0.2);
+      color: var(--c-text-sub);
+      cursor: pointer;
+      transition: var(--transition);
+      background: transparent;
+    }
+
+    .page-btn:hover,
+    .page-btn.active {
+      background: var(--grad-main);
+      color: #fff;
+      border-color: transparent;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 내비게이션 -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo">
+      <img src="Color_Logo.png" alt="진부중 3D 동아리 로고" onerror="this.style.display='none'" />
+      <span class="nav-logo-text">진부중학교 3D 동아리</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">홈</a>
+      <a href="about.html">동아리 소개</a>
+      <a href="activity.html">활동 내용</a>
+      <a href="works.html">작품</a>
+      <a href="demo_file.html">데모파일</a>
+      <a href="gallery.html">갤러리</a>
+      <a href="notice.html">공지사항</a>
+      <a href="contact.html">문의</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="메뉴 열기">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <nav class="nav-mobile" id="navMobile">
+    <a href="index.html">홈</a>
+    <a href="about.html">동아리 소개</a>
+    <a href="activity.html">활동 내용</a>
+    <a href="works.html">작품</a>
+    <a href="demo_file.html">데모파일</a>
+    <a href="gallery.html">갤러리</a>
+    <a href="notice.html">공지사항</a>
+    <a href="contact.html">문의</a>
+  </nav>
+
+  <section class="page-hero">
+    <div class="page-hero-content">
+      <span class="section-label"
+        style="color:rgba(255,255,255,0.8); background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25);">NOTICE</span>
+      <h1 style="margin-top:0.75rem;">공지사항</h1>
+      <p>진부중학교 3D 동아리의 최신 소식을 확인하세요.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="notice-list">
+        <div class="notice-card reveal" data-title="2026년도 동아리원 모집 안내" data-date="2026.04.10" data-type="모집"
+          data-body="안녕하세요, 진부중학교 3D 동아리입니다.\n\n2026년 1학기 신입 동아리원을 모집합니다.\n\n- 모집 인원: 5명 내외\n- 자격: 진부중학교 재학생\n- 지원 방법: contact@jb3d.xyz 로 이름, 학년/반/번호, 지원 동기를 보내주세요.\n- 마감: 2026년 4월 30일\n\n3D에 관심 있는 학생 누구나 지원 가능합니다. 많은 지원 부탁드립니다!">
+          <div class="notice-card-meta">
+            <span class="notice-type recruit">모집</span>
+            <span style="font-size:0.72rem; color:var(--c-teal); font-weight:700;">NEW</span>
+          </div>
+          <div class="notice-card-header">
+            <div>
+              <h3>2026년도 동아리원 모집 안내</h3>
+              <p>2026년 1학기 신입 동아리원 모집 공고입니다. 3D에 관심 있는 학생이라면 누구나 지원 가능합니다.</p>
+            </div>
+            <div class="notice-card-date">2026.04.10</div>
+          </div>
+        </div>
+
+        <div class="notice-card reveal reveal-delay-1" data-title="2분기 활동 일정 공지" data-date="2026.03.25" data-type="일정"
+          data-body="안녕하세요, 진부중학교 3D 동아리입니다.\n\n2026년 2분기(4~6월) 활동 일정을 안내드립니다.\n\n4월: 기초 모델링 심화 학습\n5월: 텍스처링 & 렌더링 실습\n6월: 1학기 팀 프로젝트 기획 및 제작\n\n매주 수요일 오후 3시 ~ 5시, 컴퓨터실에서 진행됩니다.\n참석 불가 시 사전에 부장에게 연락 부탁드립니다.">
+          <div class="notice-card-meta">
+            <span class="notice-type">일정</span>
+            <span style="font-size:0.72rem; color:var(--c-teal); font-weight:700;">NEW</span>
+          </div>
+          <div class="notice-card-header">
+            <div>
+              <h3>2분기 활동 일정 공지</h3>
+              <p>4월부터 6월까지의 활동 일정을 안내합니다. 매주 수요일 오후에 진행됩니다.</p>
+            </div>
+            <div class="notice-card-date">2026.03.25</div>
+          </div>
+        </div>
+
+        <div class="notice-card reveal reveal-delay-2" data-title="2025년 작품 전시회 결과 안내" data-date="2026.03.01"
+          data-type="결과"
+          data-body="안녕하세요, 진부중학교 3D 동아리입니다.\n\n2025년 12월에 진행한 연말 작품 전시회가 성황리에 마무리되었습니다.\n\n총 12점의 3D 작품이 전시되었으며 교사·학생·학부모 등 100여 명이 관람했습니다.\n\n전시 작품 사진은 갤러리 페이지에서 확인하실 수 있습니다.\n\n참여해주신 모든 동아리원 여러분, 수고하셨습니다!">
+          <div class="notice-card-meta">
+            <span class="notice-type event">결과</span>
+          </div>
+          <div class="notice-card-header">
+            <div>
+              <h3>2025년 작품 전시회 결과 안내</h3>
+              <p>2025년 연말 작품 전시회가 성황리에 종료되었습니다. 감사합니다.</p>
+            </div>
+            <div class="notice-card-date">2026.03.01</div>
+          </div>
+        </div>
+
+        <div class="notice-card reveal" data-title="홈페이지 오픈 안내" data-date="2025.09.01" data-type="공지"
+          data-body="안녕하세요, 진부중학교 3D 동아리입니다.\n\n진부중학교 3D 동아리 공식 홈페이지가 오픈했습니다!\n\n앞으로 홈페이지를 통해 동아리 소개, 활동 내용, 작품, 갤러리, 공지사항을 업데이트할 예정입니다.\n\n많은 관심 부탁드립니다.">
+          <div class="notice-card-meta">
+            <span class="notice-type">공지</span>
+          </div>
+          <div class="notice-card-header">
+            <div>
+              <h3>홈페이지 오픈 안내</h3>
+              <p>진부중학교 3D 동아리 공식 홈페이지가 오픈했습니다. 앞으로 활동 소식을 이곳에서 만나보세요.</p>
+            </div>
+            <div class="notice-card-date">2025.09.01</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pagination reveal">
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 공지 모달 -->
+  <div class="notice-modal" id="noticeModal">
+    <div class="modal-inner">
+      <span class="modal-close" id="modalClose">&times;</span>
+      <span class="notice-type" id="modalType">공지</span>
+      <h2 id="modalTitle" style="margin-top:0.75rem;"></h2>
+      <p class="modal-meta" id="modalDate"></p>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo">진부중 3D 동아리</div>
+        <p>진부중학교 3D 동아리<br />3D 모델링 · 렌더링 · 애니메이션</p>
+      </div>
+      <div class="footer-col">
+        <h4>메뉴</h4>
+        <ul>
+          <li><a href="about.html">동아리 소개</a></li>
+          <li><a href="activity.html">활동 내용</a></li>
+          <li><a href="works.html">작품</a></li>
+          <li><a href="gallery.html">갤러리</a></li>
+          <li><a href="notice.html">공지사항</a></li>
+          <li><a href="contact.html">문의</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>연락처</h4>
+        <ul>
+          <li><a href="mailto:contact@jb3d.xyz">contact@jb3d.xyz</a></li>
+          <li><a href="contact.html">오는 길</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2026 진부중학교 3D 동아리. All rights reserved.</div>
+  </footer>
+
+  <script type="module" src="dataService.js?v=2026-04-25-1"></script>
+  <script src="main.js?v=2026-04-25-1"></script>
+  <script type="module">
+    async function renderNotices() {
+      // dataService가 모듈이므로 로드될 때까지 잠시 대기
+      const checkDS = setInterval(async () => {
+        if (window.dataService) {
+          clearInterval(checkDS);
+          const ds = window.dataService;
+          const listContainer = document.querySelector('.notice-list');
+          listContainer.innerHTML = '<p style="text-align:center; padding: 3rem;">공지사항을 불러오는 중...</p>';
+
+          const notices = await ds.getNotices();
+          listContainer.innerHTML = '';
+
+          if (notices.length === 0) {
+            listContainer.innerHTML = '<p style="text-align:center; padding: 3rem;">등록된 공지사항이 없습니다.</p>';
+            return;
+          }
+
+          notices.forEach((n, index) => {
+            const card = document.createElement('div');
+            card.className = `notice-card reveal`;
+            if (index > 0) card.classList.add(`reveal-delay-${Math.min(index, 3)}`);
+
+            const typeLabel = n.type || '공지';
+            const typeClass = typeLabel === '모집' ? 'recruit' : (typeLabel === '결과' ? 'event' : '');
+
+            card.innerHTML = `
+            <div class="notice-card-meta">
+              <span class="notice-type ${typeClass}">${typeLabel}</span>
+              ${n.isNew ? '<span style="font-size:0.72rem; color:var(--c-teal); font-weight:700;">NEW</span>' : ''}
+            </div>
+            <div class="notice-card-header">
+              <div>
+                <h3>${n.title}</h3>
+                <p>${marked.parse(n.content.substring(0, 200))}</p>
+              </div>
+              <div class="notice-card-date">${n.date}</div>
+            </div>
+          `;
+
+            card.addEventListener('click', () => {
+              document.getElementById('modalTitle').textContent = n.title;
+              document.getElementById('modalDate').textContent = n.date;
+              document.getElementById('modalType').textContent = typeLabel;
+              document.getElementById('modalType').className = `notice-type ${typeClass}`;
+              document.getElementById('modalBody').innerHTML = marked.parse(n.content);
+              document.getElementById('noticeModal').classList.add('open');
+            });
+
+            listContainer.appendChild(card);
+          });
+
+          if (window.initScrollReveal) window.initScrollReveal();
+        }
+      }, 50);
+    }
+
+    const modal = document.getElementById('noticeModal');
+    const modalClose = document.getElementById('modalClose');
+    modalClose.addEventListener('click', () => modal.classList.remove('open'));
+    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+
+    document.addEventListener('DOMContentLoaded', renderNotices);
+  </script>
+</body>
+
+</html>
