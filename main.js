@@ -33,10 +33,6 @@
   // 스크롤 시 그림자 (모바일에서는 비활성화)
   const mobileQuery = window.matchMedia('(max-width: 768px)');
   const updateNavbarScrollState = () => {
-    if (mobileQuery.matches) {
-      navbar?.classList.remove('scrolled');
-      return;
-    }
     navbar?.classList.toggle('scrolled', window.scrollY > 30);
   };
 

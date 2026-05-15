@@ -144,7 +144,9 @@ h1, h2, h3, h4 {
 .nav-toggle {
   display: none; flex-direction: column; gap: 5px;
   width: 28px; padding: 4px 0;
-  cursor: pointer;}
+  cursor: pointer;
+  z-index: 999;
+}
 .nav-toggle span {
   display: block; height: 2px; border-radius: 2px;
   background: var(--grad-main);
@@ -297,6 +299,13 @@ h1, h2, h3, h4 {
   width: 60px; height: 4px;
   border-radius: 2px;
   background: var(--grad-main);
+  margin: 1rem auto 0;
+}
+
+.sub-divider {
+  width: 700px; height: 2px;
+  border-radius: 2px;
+  background: var(--grad-card);
   margin: 1rem auto 0;
 }
 
