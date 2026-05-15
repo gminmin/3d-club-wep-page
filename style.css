@@ -650,5 +650,3 @@ footer {
   border-radius: 9999px; font-size: 0.85rem; font-weight: 600;
   opacity: 0; pointer-events: none; transition: opacity var(--transition);
 }
-
-/* 업데이트용 주석 */
