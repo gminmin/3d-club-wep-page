@@ -14,6 +14,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function setupAdmin() {
   const ds = window.dataService;
+  const getDisplayItems =
+    typeof ds?.getDisplayItems === "function"
+      ? ds.getDisplayItems.bind(ds)
+      : typeof ds?.getDisplay === "function"
+        ? ds.getDisplay.bind(ds)
+        : typeof ds?.getWorks === "function"
+          ? ds.getWorks.bind(ds)
+          : null;
 
   const adminContainer = document.getElementById("admin-container");
   const navLinks = document.querySelectorAll(".nav-link");
@@ -595,7 +603,10 @@ function setupAdmin() {
     try {
       const listBody = document.getElementById("display-list-body");
       listBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
-      const data = await ds.getDisplayItems();
+      if (!getDisplayItems) {
+        throw new Error("No display loader found on dataService");
+      }
+      const data = await getDisplayItems();
 
       // 리스트 이름별 그룹핑을 시각적으로 표시하기 위해 정렬
       const sorted = [...data].sort((a, b) => {
