@@ -74,6 +74,7 @@ function setupAdmin() {
       if (target === "schedule") renderSchedule();
       if (target === "demofiles") renderDemoFiles();
       if (target === "maintenance") renderMaintenanceSettings();
+      if (target === "display") renderDisplay();
     });
   });
 
@@ -589,6 +590,94 @@ function setupAdmin() {
     }
   });
 
+  // --- 디스플레이 슬라이드 렌더링 ---
+  async function renderDisplay() {
+    try {
+      const listBody = document.getElementById("display-list-body");
+      listBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+      const data = await ds.getDisplayItems();
+
+      // 리스트 이름별 그룹핑을 시각적으로 표시하기 위해 정렬
+      const sorted = [...data].sort((a, b) => {
+        if ((a.listName || '') < (b.listName || '')) return -1;
+        if ((a.listName || '') > (b.listName || '')) return 1;
+        return (a.order || 0) - (b.order || 0);
+      });
+
+      listBody.innerHTML = sorted.length === 0
+        ? '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">등록된 슬라이드가 없습니다.</td></tr>'
+        : sorted.map(item => `
+          <tr>
+            <td><span class="badge" style="background:linear-gradient(135deg,#04ADC0,#5D68A6);color:#fff;border:none;">${item.listName || '-'} 리스트</span></td>
+            <td>${item.order ?? 0}</td>
+            <td><strong>${item.title}</strong></td>
+            <td>${item.author || '-'}</td>
+            <td>${item.imageUrl
+              ? `<img src="${item.imageUrl}" style="height:40px;border-radius:4px;object-fit:cover;" />`
+              : '<span style="color:#94a3b8;font-size:0.8rem;">없음</span>'}</td>
+            <td>
+              <button class="btn-delete" style="background:transparent;margin-right:5px;"
+                onclick="editDisplay('${item.id}','${item.title.replace(/'/g,"\\'")}',${ item.order ?? 0 },'${(item.listName||'A')}','${(item.author||'').replace(/'/g,"\\'")}')">수정</button>
+              <button class="btn-delete" onclick="deleteItem('display','${item.id}')">삭제</button>
+            </td>
+          </tr>
+        `).join('');
+    } catch (error) {
+      console.error("Display items load failed:", error);
+      document.getElementById("display-list-body").innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ef4444;">데이터를 불러오지 못했습니다.</td></tr>';
+    }
+  }
+
+  // --- 디스플레이 슬라이드 폼 제출 ---
+  document.getElementById("display-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const displayId = document.getElementById("display-id").value;
+    btn.innerText = "저장 중..."; btn.disabled = true;
+
+    try {
+      const title = document.getElementById("display-title").value.trim();
+      const author = document.getElementById("display-author").value.trim();
+      const description = document.getElementById("display-description").value.trim();
+      const listName = document.getElementById("display-list").value.trim().toUpperCase() || "A";
+      const order = parseInt(document.getElementById("display-order").value) || 0;
+      const file = document.getElementById("display-file").files[0];
+
+      if (!title || !listName) {
+        alert("제목과 리스트 그룹을 입력해주세요.");
+        btn.innerText = "저장"; btn.disabled = false;
+        return;
+      }
+
+      const displayData = { title, author, description, listName, order };
+
+      if (file) {
+        displayData.imageUrl = await ds.uploadFile(file, "display");
+      } else if (!displayId) {
+        // 이미지 없이 등록 허용 (이미지 없는 슬라이드도 허용)
+        displayData.imageUrl = "";
+      }
+
+      if (displayId) {
+        await ds.updateDisplayItem(displayId, displayData);
+        alert("슬라이드가 수정되었습니다.");
+      } else {
+        await ds.addDisplayItem(displayData);
+        alert("슬라이드가 추가되었습니다.");
+      }
+
+      e.target.reset();
+      document.getElementById("display-id").value = "";
+      e.target.style.display = "none";
+      renderDisplay();
+    } catch (error) {
+      console.error("Display item save failed:", error);
+      alert("저장에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      btn.innerText = "저장"; btn.disabled = false;
+    }
+  });
+
   window.toggleForm = (id) => {
     const form = document.getElementById(id);
     form.style.display = form.style.display === "none" ? "flex" : "none";
@@ -635,6 +724,22 @@ function setupAdmin() {
     document.getElementById("demofile-preview").value = "";
     document.getElementById("demofile-github").value = "";
     document.getElementById("demofile-form").querySelector('button[type="submit"]').innerText = "저장";
+  };
+
+  window.resetDisplayForm = () => {
+    document.getElementById("display-id").value = "";
+    document.getElementById("display-form").reset();
+    document.getElementById("display-form").querySelector('button[type="submit"]').innerText = "저장";
+  };
+
+  window.editDisplay = (id, title, order, listName, author) => {
+    document.getElementById("display-id").value = id;
+    document.getElementById("display-title").value = title;
+    document.getElementById("display-order").value = order;
+    document.getElementById("display-list").value = listName;
+    document.getElementById("display-author").value = author;
+    document.getElementById("display-form").style.display = "flex";
+    document.getElementById("display-form").querySelector('button[type="submit"]').innerText = "수정하기";
   };
 
   window.editNotice = (id, title, content) => {
@@ -684,6 +789,7 @@ function setupAdmin() {
       if (type === "contact") await ds.deleteContact(id);
       if (type === "schedule") await ds.deleteSchedule(id);
       if (type === "demofile") await ds.deleteDemoFile(id);
+      if (type === "display") await ds.deleteDisplayItem(id);
 
       alert("삭제되었습니다.");
 
@@ -694,6 +800,7 @@ function setupAdmin() {
       if (type === "contact") renderContacts();
       if (type === "schedule") renderSchedule();
       if (type === "demofile") renderDemoFiles();
+      if (type === "display") renderDisplay();
     } catch (error) {
       console.error("Delete failed:", error);
       alert("삭제에 실패했습니다. 다시 시도해주세요.");

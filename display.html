@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Display</title>
+  <link rel="icon" type="image/png" href="../web_icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #111315;
+      --panel: #1a1d21;
+      --panel-border: #2a2f35;
+      --text: #f2f4f7;
+      --muted: #c0c6cf;
+      --accent: #d9dde3;
+      --accent-2: #d9dde3;
+      --shadow: none;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; }
+    body {
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Noto Sans KR", "Inter", system-ui, sans-serif;
+    }
+
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: none;
+    }
+
+    .status {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 5;
+      padding: 8px 12px;
+      border-radius: 0;
+      font-size: 0.78rem;
+      color: var(--muted);
+      background: #15181c;
+      border: 1px solid var(--panel-border);
+      backdrop-filter: none;
+    }
+
+    .settings {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: none;
+      z-index: 30;
+    }
+    .settings.hidden { display: none; }
+
+    .settings-card {
+      width: min(560px, 100%);
+      border: 1px solid var(--panel-border);
+      border-radius: 0;
+      background: var(--panel);
+      box-shadow: none;
+      padding: 28px;
+    }
+    .settings-title {
+      margin: 0 0 8px;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    .settings-subtitle {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .field label {
+      color: var(--text);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .field select {
+      width: 100%;
+      border: 1px solid var(--panel-border);
+      border-radius: 0;
+      padding: 12px 14px;
+      background: #121417;
+      color: #ffffff;
+      outline: none;
+      appearance: none;
+    }
+    .field select option {
+      background: #121417;
+      color: #ffffff;
+    }
+    .toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid var(--panel-border);
+      border-radius: 0;
+      padding: 12px 14px;
+      background: #121417;
+      cursor: pointer;
+      user-select: none;
+    }
+    .toggle span { font-size: 0.92rem; color: var(--text); }
+    .switch {
+      width: 46px;
+      height: 26px;
+      border-radius: 0;
+      background: #2a2f35;
+      position: relative;
+      flex: 0 0 auto;
+      transition: none;
+    }
+    .switch.on { background: var(--accent); }
+    .knob {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 0;
+      background: #fff;
+      transition: none;
+    }
+    .switch.on .knob { left: 23px; }
+
+    .settings-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .btn {
+      flex: 1;
+      border: 0;
+      border-radius: 0;
+      padding: 14px 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: #d9dde3;
+      color: #111315;
+      box-shadow: none;
+    }
+    .btn-secondary {
+      background: #20242a;
+      color: var(--text);
+      border: 1px solid var(--panel-border);
+    }
+
+    .viewer {
+      position: fixed;
+      inset: 0;
+      opacity: 0;
+      transition: none;
+      background: #000;
+    }
+    .viewer.visible { opacity: 1; }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      background: #000;
+    }
+    .slide.active { opacity: 1; }
+
+    .art {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background: #000;
+    }
+
+    .placeholder {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: rgba(255,255,255,0.78);
+      background: #000;
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .info {
+      position: absolute;
+      right: 24px;
+      bottom: 24px;
+      width: min(340px, calc(100vw - 48px));
+      padding: 14px 16px;
+      border-radius: 0;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(10, 14, 22, 0.86);
+      backdrop-filter: none;
+      box-shadow: none;
+      z-index: 2;
+    }
+    .info-list {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .info-list strong {
+      color: var(--text);
+      font-size: 0.82rem;
+    }
+    .info-title {
+      margin: 0 0 6px;
+      font-size: 1.02rem;
+      line-height: 1.35;
+      font-weight: 900;
+    }
+    .info-author {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+    .info-desc {
+      color: #d4dceb;
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .info-desc p { margin: 0 0 6px; }
+    .info-desc p:last-child { margin-bottom: 0; }
+
+    @media (max-width: 640px) {
+      .settings-card { padding: 20px; border-radius: 0; }
+      .settings-grid { grid-template-columns: 1fr; }
+      .info {
+        left: 14px;
+        right: 14px;
+        bottom: 14px;
+        width: calc(100vw - 28px);
+        padding: 12px 14px;
+        border-radius: 0;
+      }
+      .info-title { font-size: 0.98rem; }
+    }
+
+    @media (min-width: 1800px) and (min-height: 1000px) {
+      .settings-card {
+        width: min(620px, 42vw);
+        padding: 32px;
+      }
+      .settings-title { font-size: 1.7rem; }
+      .settings-subtitle { font-size: 1rem; }
+      .field label,
+      .toggle span { font-size: 0.9rem; }
+      .field select,
+      .btn {
+        padding-top: 14px;
+        padding-bottom: 14px;
+      }
+      .info {
+        right: 32px;
+        bottom: 32px;
+        width: min(380px, 22vw);
+        padding: 16px 18px;
+      }
+      .info-title { font-size: 1.08rem; }
+      .info-desc { font-size: 0.86rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="backdrop"></div>
+  <div class="status" id="status">예술을 찾아서...</div>
+
+  <section class="settings" id="settings">
+    <div class="settings-card">
+      <h1 class="settings-title">전시 설정</h1>
+      <p class="settings-subtitle">작품 전체, 정보 좌측 하단 표시.</p>
+
+      <div class="settings-grid">
+        <div class="field">
+          <label for="list-select">리스트</label>
+          <select id="list-select">
+            <option value="ALL">전체</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="interval-select">전환 간격</label>
+          <select id="interval-select">
+            <option value="3000">3초</option>
+            <option value="5000">5초</option>
+            <option value="8000" selected>8초</option>
+            <option value="10000">10초</option>
+            <option value="12000">12초</option>
+          </select>
+        </div>
+        <div class="toggle" id="particles-toggle">
+          <span>배경 효과</span>
+          <div class="switch on" id="particles-switch"><div class="knob"></div></div>
+        </div>
+        <div class="toggle" id="fullscreen-toggle">
+          <span>전체 화면</span>
+          <div class="switch on" id="fullscreen-switch"><div class="knob"></div></div>
+        </div>
+      </div>
+
+      <div class="settings-actions">
+        <button class="btn btn-secondary" id="preview-btn">Preview</button>
+        <button class="btn btn-primary" id="start-btn">Start</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="viewer" id="viewer" aria-label="Display view">
+    <div id="slide-root"></div>
+  </main>
+
+  <script type="module" src="../dataService.js"></script>
+  <script type="module">
+    const state = {
+      list: 'ALL',
+      interval: 8000,
+      particles: true,
+      fullscreen: false,
+      items: [],
+      timer: null,
+      index: 0,
+    };
+
+    const listSelect = document.getElementById('list-select');
+    const intervalSelect = document.getElementById('interval-select');
+    const viewer = document.getElementById('viewer');
+    const slideRoot = document.getElementById('slide-root');
+    const settings = document.getElementById('settings');
+    const status = document.getElementById('status');
+    const particlesSwitch = document.getElementById('particles-switch');
+    const fullscreenSwitch = document.getElementById('fullscreen-switch');
+
+    function setSwitch(el, on) {
+      el.classList.toggle('on', on);
+    }
+
+    function updateStatus(text) {
+      status.textContent = text;
+    }
+
+    function normalizeListName(value) {
+      return (value || 'A').toString().trim().toUpperCase();
+    }
+
+    function populateListOptions(items) {
+      const seen = new Set(['ALL']);
+      for (const item of items) {
+        const name = normalizeListName(item.listName);
+        if (!seen.has(name)) {
+          seen.add(name);
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          listSelect.appendChild(option);
+        }
+      }
+    }
+
+    function filterItems(items) {
+      if (state.list === 'ALL') return items;
+      return items.filter(item => normalizeListName(item.listName) === state.list);
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderDescription(text) {
+      const lines = String(text).split(/\r?\n+/).map(line => line.trim()).filter(Boolean);
+      if (!lines.length) return '';
+      return lines.map(line => `<p>${escapeHtml(line)}</p>`).join('');
+    }
+
+    function createSlide(item, active) {
+      const slide = document.createElement('section');
+      slide.className = 'slide' + (active ? ' active' : '');
+
+      if (item.imageUrl) {
+        const img = document.createElement('img');
+        img.className = 'art';
+        img.alt = item.title || '';
+        img.src = item.imageUrl;
+        slide.appendChild(img);
+      } else {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'placeholder';
+        placeholder.textContent = (item.listName || 'WORK').toString().toUpperCase();
+        slide.appendChild(placeholder);
+      }
+
+      const info = document.createElement('div');
+      info.className = 'info';
+      info.innerHTML = `
+        <div class="info-list"><strong>${escapeHtml(normalizeListName(item.listName))}</strong><span>WORK</span></div>
+        <h2 class="info-title">${escapeHtml(item.title || 'Untitled')}</h2>
+        ${item.author ? `<div class="info-author">Author: ${escapeHtml(item.author)}</div>` : ''}
+        <div class="info-desc">${renderDescription(item.description || '')}</div>
+      `;
+      slide.appendChild(info);
+      return slide;
+    }
+
+    function renderViewer(items) {
+      clearInterval(state.timer);
+      slideRoot.innerHTML = '';
+      state.index = 0;
+
+      if (!items.length) {
+        const empty = document.createElement('section');
+        empty.className = 'slide active';
+        empty.innerHTML = '<div class="placeholder">No works available</div>';
+        slideRoot.appendChild(empty);
+        updateStatus('No works available.');
+        return;
+      }
+
+      items.forEach((item, index) => {
+        slideRoot.appendChild(createSlide(item, index === 0));
+      });
+
+      const slides = [...slideRoot.querySelectorAll('.slide')];
+      if (slides.length > 1) {
+        state.timer = setInterval(() => {
+          slides[state.index].classList.remove('active');
+          state.index = (state.index + 1) % slides.length;
+          slides[state.index].classList.add('active');
+        }, state.interval);
+      }
+      updateStatus(items.length + ' works visible');
+    }
+
+    async function loadItems() {
+      let items = [];
+      if (window.dataService) {
+        try {
+          items = await window.dataService.getDisplayItems();
+        } catch (error) {
+          console.warn('dataService failed', error);
+        }
+      }
+      return Array.isArray(items) ? items : [];
+    }
+
+    async function startDisplay() {
+      state.list = listSelect.value;
+      state.interval = Number(intervalSelect.value) || 8000;
+      state.particles = particlesSwitch.classList.contains('on');
+      state.fullscreen = fullscreenSwitch.classList.contains('on');
+
+      settings.classList.add('hidden');
+      viewer.classList.add('visible');
+
+      if (state.fullscreen && document.documentElement.requestFullscreen) {
+        try { await document.documentElement.requestFullscreen(); } catch (_) {}
+      }
+
+      renderViewer(filterItems(state.items));
+    }
+
+    async function init() {
+      updateStatus('Loading works...');
+      state.items = await loadItems();
+      populateListOptions(state.items);
+      updateStatus(state.items.length ? 'Choose settings and start.' : 'No works available.');
+    }
+
+    document.getElementById('particles-toggle').addEventListener('click', () => {
+      setSwitch(particlesSwitch, !particlesSwitch.classList.contains('on'));
+    });
+
+    document.getElementById('fullscreen-toggle').addEventListener('click', () => {
+      setSwitch(fullscreenSwitch, !fullscreenSwitch.classList.contains('on'));
+    });
+
+    document.getElementById('preview-btn').addEventListener('click', async () => {
+      state.list = listSelect.value;
+      state.interval = Number(intervalSelect.value) || 8000;
+      state.items = await loadItems();
+      settings.classList.add('hidden');
+      viewer.classList.add('visible');
+      renderViewer(filterItems(state.items));
+    });
+
+    document.getElementById('start-btn').addEventListener('click', startDisplay);
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !settings.classList.contains('hidden')) {
+        settings.classList.add('hidden');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
