@@ -416,6 +416,58 @@ const dataService = {
     }
   },
 
+  // --- Display slides ---
+  async getDisplayItems() {
+    try {
+      const querySnapshot = await trackApiCall(getDocs(collection(db, "display")));
+      return querySnapshot.docs
+        .map((item) => ({ id: item.id, ...item.data() }))
+        .sort((a, b) => {
+          const listCompare = String(a.listName || "A").localeCompare(String(b.listName || "A"));
+          if (listCompare !== 0) return listCompare;
+          return (Number(a.order) || 0) - (Number(b.order) || 0);
+        });
+    } catch (error) {
+      console.error("Display items fetch failed:", error);
+      throw wrapFirebaseError("Display slides fetch failed", error);
+    }
+  },
+
+  async addDisplayItem(item) {
+    try {
+      const newItem = {
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        ...item
+      };
+      return await trackApiCall(addDoc(collection(db, "display"), newItem));
+    } catch (error) {
+      console.error("Display item create failed:", error);
+      throw wrapFirebaseError("Display slide create failed", error);
+    }
+  },
+
+  async updateDisplayItem(id, item) {
+    try {
+      return await trackApiCall(updateDoc(doc(db, "display", id), {
+        ...item,
+        updatedAt: new Date().toISOString()
+      }));
+    } catch (error) {
+      console.error("Display item update failed:", error);
+      throw wrapFirebaseError("Display slide update failed", error);
+    }
+  },
+
+  async deleteDisplayItem(id) {
+    try {
+      return await trackApiCall(deleteDoc(doc(db, "display", id)));
+    } catch (error) {
+      console.error("Display item delete failed:", error);
+      throw wrapFirebaseError("Display slide delete failed", error);
+    }
+  },
+
   // --- 파일 업로드 (Firebase Storage) ---
   async uploadFile(file, path) {
     try {
