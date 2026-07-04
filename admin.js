@@ -14,14 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function setupAdmin() {
   const ds = window.dataService;
-  const getDisplayItems =
-    typeof ds?.getDisplayItems === "function"
-      ? ds.getDisplayItems.bind(ds)
-      : typeof ds?.getDisplay === "function"
-        ? ds.getDisplay.bind(ds)
-        : typeof ds?.getWorks === "function"
-          ? ds.getWorks.bind(ds)
-          : null;
+  const getDisplayItems = typeof ds?.getDisplayItems === "function"
+    ? ds.getDisplayItems.bind(ds)
+    : null;
 
   const adminContainer = document.getElementById("admin-container");
   const navLinks = document.querySelectorAll(".nav-link");
