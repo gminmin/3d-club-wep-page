@@ -471,9 +471,11 @@
 
     async function loadItems() {
       let items = [];
-      if (window.dataService) {
+      const ds = window.dataService;
+      const loadFn = ds?.getDisplayItems || ds?.getDisplay || ds?.getWorks;
+      if (typeof loadFn === 'function') {
         try {
-          items = await window.dataService.getDisplayItems();
+          items = await loadFn.call(ds);
         } catch (error) {
           console.warn('dataService failed', error);
         }
