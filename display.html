@@ -114,6 +114,21 @@
       background: #121417;
       color: #ffffff;
     }
+    .field input[type="number"] {
+      width: 100%;
+      border: 1px solid var(--panel-border);
+      border-radius: 0;
+      padding: 12px 14px;
+      background: #121417;
+      color: #ffffff;
+      outline: none;
+    }
+    .field input[type="number"]::placeholder {
+      color: #7b8493;
+    }
+    .field input[type="number"].hidden {
+      display: none;
+    }
     .toggle {
       display: flex;
       align-items: center;
@@ -321,6 +336,8 @@
             <option value="8000" selected>8초</option>
             <option value="10000">10초</option>
             <option value="12000">12초</option>
+            <option value="custom">입력</option>
+            <input id="interval-input" type="number" min="1" step="1" inputmode="numeric" placeholder="직접 입력 (초)" class="hidden" />
           </select>
         </div>
         <div class="toggle" id="particles-toggle">
@@ -358,6 +375,7 @@
 
     const listSelect = document.getElementById('list-select');
     const intervalSelect = document.getElementById('interval-select');
+    const intervalInput = document.getElementById('interval-input');
     const viewer = document.getElementById('viewer');
     const slideRoot = document.getElementById('slide-root');
     const settings = document.getElementById('settings');
@@ -371,6 +389,22 @@
 
     function updateStatus(text) {
       status.textContent = text;
+    }
+
+    function getIntervalValue() {
+      if (intervalSelect.value === 'custom') {
+        const customValue = Number(intervalInput.value);
+        if (Number.isFinite(customValue) && customValue > 0) return customValue * 1000;
+      }
+      return Number(intervalSelect.value) || 8000;
+    }
+
+    function syncIntervalInputVisibility() {
+      const isCustom = intervalSelect.value === 'custom';
+      intervalInput.classList.toggle('hidden', !isCustom);
+      if (!isCustom) {
+        intervalInput.value = intervalSelect.value;
+      }
     }
 
     function normalizeListName(value) {
@@ -431,7 +465,6 @@
       const info = document.createElement('div');
       info.className = 'info';
       info.innerHTML = `
-        <div class="info-list"><strong>${escapeHtml(normalizeListName(item.listName))}</strong><span>WORK</span></div>
         <h2 class="info-title">${escapeHtml(item.title || 'Untitled')}</h2>
         ${item.author ? `<div class="info-author">Author: ${escapeHtml(item.author)}</div>` : ''}
         <div class="info-desc">${renderDescription(item.description || '')}</div>
@@ -485,7 +518,7 @@
 
     async function startDisplay() {
       state.list = listSelect.value;
-      state.interval = Number(intervalSelect.value) || 8000;
+      state.interval = getIntervalValue();
       state.particles = particlesSwitch.classList.contains('on');
       state.fullscreen = fullscreenSwitch.classList.contains('on');
 
@@ -506,6 +539,20 @@
       updateStatus(state.items.length ? 'Choose settings and start.' : 'No works available.');
     }
 
+    intervalSelect.addEventListener('change', () => {
+      syncIntervalInputVisibility();
+      if (intervalSelect.value !== 'custom') {
+        intervalInput.value = intervalSelect.value;
+      }
+    });
+
+    intervalInput.addEventListener('input', () => {
+      const value = Number(intervalInput.value);
+      if (!Number.isFinite(value) || value <= 0) {
+        intervalInput.value = '';
+      }
+    });
+
     document.getElementById('particles-toggle').addEventListener('click', () => {
       setSwitch(particlesSwitch, !particlesSwitch.classList.contains('on'));
     });
@@ -516,7 +563,7 @@
 
     document.getElementById('preview-btn').addEventListener('click', async () => {
       state.list = listSelect.value;
-      state.interval = Number(intervalSelect.value) || 8000;
+      state.interval = getIntervalValue();
       state.items = await loadItems();
       settings.classList.add('hidden');
       viewer.classList.add('visible');
@@ -531,7 +578,10 @@
       }
     });
 
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => {
+      syncIntervalInputVisibility();
+      init();
+    });
   </script>
 </body>
 </html>
