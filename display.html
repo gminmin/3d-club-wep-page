@@ -273,6 +273,51 @@
     .info-desc p { margin: 0 0 6px; }
     .info-desc p:last-child { margin-bottom: 0; }
 
+    .item-nav {
+      position: absolute;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 999px;
+      background: rgba(10, 14, 22, 0.8);
+      backdrop-filter: blur(6px);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .nav-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.3);
+      transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.5s ease;
+      will-change: width, background-color;
+    }
+
+    .nav-dot.active {
+      width: 24px;
+      background: #ffffff;
+    }
+
+    .nav-label {
+      color: #f2f4f7;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
     @media (max-width: 640px) {
       .settings-card { padding: 20px; border-radius: 0; }
       .settings-grid { grid-template-columns: 1fr; }
@@ -351,13 +396,15 @@
       </div>
 
       <div class="settings-actions">
-        <button class="btn btn-secondary" id="preview-btn">Preview</button>
-        <button class="btn btn-primary" id="start-btn">Start</button>
+        <button id="preview-btn">Preview</button>
+        <button id="start-btn">Start</button>
+        <button onclick="location.reload()">새로 고침</button>
       </div>
     </div>
   </section>
 
   <main class="viewer" id="viewer" aria-label="Display view">
+    <div class="item-nav" id="item-nav" aria-label="Item navigation"></div>
     <div id="slide-root"></div>
   </main>
 
@@ -473,16 +520,45 @@
       return slide;
     }
 
+    function updateNavigation(index, total) {
+      const nav = document.getElementById('item-nav');
+      if (!nav) return;
+
+      if (!total) {
+        nav.innerHTML = '';
+        return;
+      }
+
+      if (!nav.querySelector('.nav-dots')) {
+        const dots = Array.from({ length: total }, (_, dotIndex) => {
+          return `<span class="nav-dot" data-index="${dotIndex}"></span>`;
+        }).join('');
+        nav.innerHTML = `<div class="nav-dots">${dots}</div><span class="nav-label"></span>`;
+      }
+
+      const dotElements = nav.querySelectorAll('.nav-dot');
+      dotElements.forEach((dot, dotIndex) => {
+        dot.classList.toggle('active', dotIndex === index);
+      });
+
+      const label = nav.querySelector('.nav-label');
+      if (label) label.textContent = `${index + 1}/${total}`;
+    }
+
     function renderViewer(items) {
       clearInterval(state.timer);
       slideRoot.innerHTML = '';
       state.index = 0;
+
+      const nav = document.getElementById('item-nav');
+      if (nav) nav.innerHTML = '';
 
       if (!items.length) {
         const empty = document.createElement('section');
         empty.className = 'slide active';
         empty.innerHTML = '<div class="placeholder">No works available</div>';
         slideRoot.appendChild(empty);
+        updateNavigation(0, 0);
         updateStatus('No works available.');
         return;
       }
@@ -492,11 +568,14 @@
       });
 
       const slides = [...slideRoot.querySelectorAll('.slide')];
+      updateNavigation(state.index, slides.length);
+
       if (slides.length > 1) {
         state.timer = setInterval(() => {
           slides[state.index].classList.remove('active');
           state.index = (state.index + 1) % slides.length;
           slides[state.index].classList.add('active');
+          updateNavigation(state.index, slides.length);
         }, state.interval);
       }
       updateStatus(items.length + ' works visible');
@@ -571,13 +650,7 @@
     });
 
     document.getElementById('start-btn').addEventListener('click', startDisplay);
-
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && !settings.classList.contains('hidden')) {
-        settings.classList.add('hidden');
-      }
-    });
-
+    
     document.addEventListener('DOMContentLoaded', () => {
       syncIntervalInputVisibility();
       init();

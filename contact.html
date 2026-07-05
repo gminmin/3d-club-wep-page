@@ -95,7 +95,7 @@
     }
 
     .info-card:hover {
-      transform: translateY(-3px);
+      transform: translateY(0);
       box-shadow: var(--shadow-md);
     }
 
@@ -159,15 +159,20 @@
       border-radius: 20px;
       font-size: 0.8rem;
       font-weight: 600;
-      border: 1.5px solid rgb(255, 255, 255);
-      color: var(--c-text-sub);
+      border: 2px solid #04adc0;
+      color: #04adc0;
+      background: transparent;
+      text-decoration: none;
       transition: var(--transition);
     }
 
-    .sns-btn:hover {
-      background: var(--grad-main);
-      color: #ff0000;
-      border-color: transparent;
+    .sns-btn:hover,
+    .sns-btn:focus-visible,
+    .sns-btn:active {
+      background: linear-gradient(135deg, #04adc0, #5d68a6);
+      color: #ffffff !important;
+      border-color: #f5f8f8;
+      text-decoration: none;
     }
 
     .map-wrap {
@@ -216,17 +221,17 @@
 
     /* FAQ */
     .faq-item {
-      background: var(--c-card);
+      background: var(--c-grad);
       border: 2px solid rgba(4, 173, 192, 0.25);
       border-radius: var(--radius-md);
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.7rem;
       overflow: hidden;
       box-shadow: var(--shadow-sm);
-      transition: border-color 0.5s ease, transform 1s ease;
+      transition: border-color 0.1s ease, transform 0.1s ease;
     }
 
     .faq-item:hover {
-      transform: translateY(-4px);
+      transform: translateY(0);
       border-color: var(--c-teal);
     }
 
@@ -246,7 +251,7 @@
     }
 
     .faq-q:hover {
-      color: var(--c-teal);
+      color: var(--grad-main);
     }
 
     .faq-arrow {
@@ -267,7 +272,7 @@
     .faq-a {
       max-height: 0;
       overflow: hidden;
-      transition: max-height 0.4s ease, padding 0.3s ease;
+      transition: max-height 0.3s ease, padding 0.3s ease;
       padding: 0 1.25rem;
       font-size: 0.88rem;
       color: var(--c-text-sub);
@@ -367,7 +372,6 @@
                   <option value="">선택해주세요</option>
                   <option value="join">동아리 지원/가입</option>
                   <option value="activity">활동 관련</option>
-                  <option value="works">작품 제출</option>
                   <option value="other">기타 문의</option>
                 </select>
               </div>
