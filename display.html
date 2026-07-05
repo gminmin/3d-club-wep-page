@@ -151,7 +151,7 @@
       flex: 0 0 auto;
       transition: none;
     }
-    .switch.on { background: var(--accent); }
+    .switch.on { background: #8cd18a;}
     .knob {
       position: absolute;
       top: 3px;
@@ -159,7 +159,7 @@
       width: 20px;
       height: 20px;
       border-radius: 0;
-      background: #fff;
+      background: #ffffff;
       transition: none;
     }
     .switch.on .knob { left: 23px; }
@@ -186,6 +186,15 @@
       background: #20242a;
       color: var(--text);
       border: 1px solid var(--panel-border);
+    }
+
+    .reset {
+      border: 0;
+      border-radius: 0;
+      padding: 14px;
+      font-weight: 800;
+      background: #530f0f;
+      color: #d9dde3;
     }
 
     .viewer {
@@ -396,9 +405,9 @@
       </div>
 
       <div class="settings-actions">
-        <button id="preview-btn">Preview</button>
-        <button id="start-btn">Start</button>
-        <button onclick="location.reload()">새로 고침</button>
+        <button class="reset" onclick="location.reload()">새로 고침</button>
+        <button class="btn-primary btn" id="preview-btn">Preview</button>
+        <button class="btn-secondary btn" id="start-btn">Start</button>
       </div>
     </div>
   </section>
