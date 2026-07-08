@@ -1,3 +1,5 @@
 {
-    "chat.agent.networkFilter": true
+    "chat.agent.networkFilter": true,
+    "liveServer.settings.multiRootWorkspaceName": "3d-club-wep-page",
+    "liveServer.settings.port": 5504
 }

@@ -468,6 +468,23 @@ const dataService = {
     }
   },
 
+  // --- Exhibition panoramas ---
+  async getExhibitionItems() {
+    try {
+      const querySnapshot = await trackApiCall(getDocs(collection(db, "exhibition")));
+      return querySnapshot.docs
+        .map((item) => ({ docId: item.id, ...item.data() }))
+        .sort((a, b) => {
+          const idA = Number(a.id) || 0;
+          const idB = Number(b.id) || 0;
+          return idA - idB;
+        });
+    } catch (error) {
+      console.error("Exhibition items fetch failed:", error);
+      throw wrapFirebaseError("전시 파노라마 목록을 불러오지 못했습니다", error);
+    }
+  },
+
   // --- 파일 업로드 (Firebase Storage) ---
   async uploadFile(file, path) {
     try {

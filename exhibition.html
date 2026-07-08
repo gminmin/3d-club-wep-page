@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>360 전시 – 진부중학교 3D 동아리</title>
+  <link rel="icon" type="image/png" href="web_icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #111315;
+      --panel: #1a1d21;
+      --panel-border: #2a2f35;
+      --text: #f2f4f7;
+      --muted: #c0c6cf;
+      --accent: #d9dde3;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; }
+    body {
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Noto Sans KR", "Inter", system-ui, sans-serif;
+      touch-action: none;
+    }
+
+    #canvas-root {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      touch-action: none;
+      cursor: grab;
+    }
+
+    #canvas-root.dragging {
+      cursor: grabbing;
+    }
+
+    #canvas-root canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    #panorama-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .overlay > * { pointer-events: auto; }
+    .overlay > .Operation-Guide,
+    .overlay > .info {
+      pointer-events: none;
+    }
+
+    .info {
+      position: absolute;
+      left: 24px;
+      bottom: 24px;
+      width: min(360px, calc(100vw - 48px));
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(10, 14, 22, 0.86);
+    }
+    .info-title {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+    .info-desc {
+      margin: 0;
+      color: #d4dceb;
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    .loader {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      background: rgba(0, 0, 0, 0.72);
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+    .loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .loader-box {
+      text-align: center;
+      padding: 24px 28px;
+      border: 1px solid var(--panel-border);
+      background: var(--panel);
+      min-width: min(320px, calc(100vw - 48px));
+    }
+    .loader-spinner {
+      width: 36px;
+      height: 36px;
+      margin: 0 auto 14px;
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    .loader-text {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .error-panel {
+      position: fixed;
+      inset: 0;
+      z-index: 25;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, 0.82);
+    }
+    .error-panel.visible { display: grid; }
+    .error-card {
+      width: min(520px, 100%);
+      padding: 28px;
+      border: 1px solid var(--panel-border);
+      background: var(--panel);
+    }
+    .error-card h1 {
+      margin: 0 0 10px;
+      font-size: 1.35rem;
+      font-weight: 800;
+    }
+    .error-card p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+    .error-card code {
+      display: block;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      background: #121417;
+      border: 1px solid var(--panel-border);
+      color: #e8edf5;
+      font-size: 0.82rem;
+      word-break: break-all;
+    }
+    .error-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .error-actions button,
+    .error-actions label {
+      border: 0;
+      padding: 12px 16px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .error-actions .primary {
+      background: var(--accent);
+      color: #111315;
+    }
+    .error-actions .secondary {
+      background: #20242a;
+      color: var(--text);
+      border: 1px solid var(--panel-border);
+    }
+    .file-input { display: none; }
+
+    /* 조작 가이드. 가운데 아래 */
+    .Operation-Guide {
+      position: absolute;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #f2f4f7;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 640px) {
+      .info {
+        left: 14px;
+        right: 14px;
+        bottom: 14px;
+        width: auto;
+        padding: 12px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas-root" aria-hidden="true"></div>
+
+  <div class="overlay">
+    <div class="Operation-Guide" id="Operation-Guide">드래그하여 둘러보기 · 스크롤/핀치로 확대/축소</div>
+
+    <aside class="info" id="info" hidden>
+      <h2 class="info-title" id="info-title"></h2>
+      <p class="info-desc" id="info-desc"></p>
+    </aside>
+  </div>
+
+  <div class="loader" id="loader">
+    <div class="loader-box">
+      <div class="loader-spinner"></div>
+      <p class="loader-text" id="loader-text">파노라마를 불러오는 중…</p>
+    </div>
+  </div>
+
+  <section class="error-panel" id="error-panel">
+    <div class="error-card">
+      <h1>파노라마를 불러올 수 없습니다</h1>
+      <p id="error-message">이미지 경로를 확인하거나, 아래에서 직접 equirectangular(2:1) 이미지를 선택해 주세요.</p>
+      <code id="error-path"></code>
+      <div class="error-actions">
+        <label class="secondary" for="file-input">이미지 선택</label>
+        <input class="file-input" id="file-input" type="file" accept="image/*" />
+        <button class="primary" id="error-retry" type="button">다시 시도</button>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="dataService.js?v=2026-07-08-exhibition"></script>
+
+  <script type="module">
+    // ── Firebase / 전역 상태 ──────────────────────────────────────
+    const FIREBASE_BUCKET = "jb3d-a98fd.firebasestorage.app";
+
+    /** Firestore exhibition 컬렉션에서 불러온 파노라마 목록 */
+    let items = [];
+
+    /** 앱 전역 상태 */
+    const state = {
+      index: 0,
+      loading: false,
+      objectUrl: null,
+    };
+
+    /** 카메라 시점: yaw(좌우), pitch(상하), fov(확대), 관성 속도 */
+    const view = {
+      yaw: 0,
+      pitch: 0,
+      fov: 75,
+      yawVelocity: 0,
+      pitchVelocity: 0,
+    };
+
+    // ── DOM 참조 ──────────────────────────────────────────────────
+    const loaderEl = document.getElementById("loader");
+    const loaderTextEl = document.getElementById("loader-text");
+    const infoEl = document.getElementById("info");
+    const infoTitleEl = document.getElementById("info-title");
+    const infoDescEl = document.getElementById("info-desc");
+    const errorPanelEl = document.getElementById("error-panel");
+    const errorMessageEl = document.getElementById("error-message");
+    const errorPathEl = document.getElementById("error-path");
+    const fileInputEl = document.getElementById("file-input");
+    const errorRetryEl = document.getElementById("error-retry");
+    const root = document.getElementById("canvas-root");
+
+    // 조작 감도 · 줌 · 관성 튜닝 값
+    const FOV_MIN = 40;
+    const FOV_MAX = 95;
+    const ZOOM_WHEEL_STEP = 0.022;
+    const PINCH_SENSITIVITY = 0.45;
+    const DRAG_YAW_SCALE = 0.0019;
+    const DRAG_PITCH_SCALE = 0.0019;
+    const INERTIA_DAMPING = 0.93;
+    const INERTIA_BLEND = 0.38;
+    const INERTIA_MIN = 0.00004;
+    const FOV_DEFAULT = 75;
+    const CANVAS_DPR = () => Math.min(window.devicePixelRatio, 1.25);
+
+    const canvas = document.createElement("canvas");
+    canvas.id = "panorama-canvas";
+    root.appendChild(canvas);
+    const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
+
+    // 런타임 리소스 · 입력 상태
+    let isPinching = false;
+    let lastPinchDistance = 0;
+    let panoramaSource = null;
+    let dragPointerId = null;
+    let lastDragPos = { x: 0, y: 0 };
+    let needsRender = true;
+    let isInteracting = false;
+    let fullscreenPending = true;
+
+    function markDirty() {
+      needsRender = true;
+    }
+
+    // ── 시점 · FOV · 드래그 · 관성 ────────────────────────────────
+    function clampFov(fov) {
+      return Math.max(FOV_MIN, Math.min(FOV_MAX, fov));
+    }
+
+    function getFov() {
+      return view.fov;
+    }
+
+    function applyFov(fov) {
+      const prevFov = view.fov;
+      view.fov = clampFov(fov);
+      if (prevFov !== view.fov) {
+        const ratio = view.fov / prevFov;
+        view.yawVelocity *= ratio;
+        view.pitchVelocity *= ratio;
+      }
+      markDirty();
+    }
+
+    function clampPitch(pitch) {
+      return Math.max(-Math.PI / 2 + 0.05, Math.min(Math.PI / 2 - 0.05, pitch));
+    }
+
+    function getRotationFovFactor() {
+      // 확대(FOV↓) 시 회전 속도 보정 — 화면상 체감 속도 유지
+      return view.fov / FOV_DEFAULT;
+    }
+
+    function clearInertia() {
+      view.yawVelocity = 0;
+      view.pitchVelocity = 0;
+    }
+
+    function applyDrag(dx, dy, trackVelocity = true) {
+      const fovFactor = getRotationFovFactor();
+      const yawDelta = -dx * DRAG_YAW_SCALE * fovFactor;
+      const pitchDelta = dy * DRAG_PITCH_SCALE * fovFactor;
+      view.yaw += yawDelta;
+      view.pitch = clampPitch(view.pitch + pitchDelta);
+      if (trackVelocity) {
+        view.yawVelocity = view.yawVelocity * (1 - INERTIA_BLEND) + yawDelta * INERTIA_BLEND;
+        view.pitchVelocity = view.pitchVelocity * (1 - INERTIA_BLEND) + pitchDelta * INERTIA_BLEND;
+      }
+      markDirty();
+    }
+
+    function applyInertia() {
+      // 손을 뗀 뒤 yawVelocity / pitchVelocity를 감쇠시키며 관성 회전
+      const yawActive = Math.abs(view.yawVelocity) > INERTIA_MIN;
+      const pitchActive = Math.abs(view.pitchVelocity) > INERTIA_MIN;
+      if (!yawActive && !pitchActive) {
+        clearInertia();
+        return false;
+      }
+
+      if (yawActive) {
+        view.yaw += view.yawVelocity;
+        view.yawVelocity *= INERTIA_DAMPING;
+      }
+      if (pitchActive) {
+        view.pitch = clampPitch(view.pitch + view.pitchVelocity);
+        view.pitchVelocity *= INERTIA_DAMPING;
+        if (view.pitch <= -Math.PI / 2 + 0.05 || view.pitch >= Math.PI / 2 - 0.05) {
+          view.pitchVelocity = 0;
+        }
+      }
+
+      markDirty();
+      return true;
+    }
+
+    function preparePanoramaSource(img) {
+      // Firebase에서 전체 원본 1회만 받아 로컬 캔버스에 복사 (압축·재요청 없음)
+      const off = document.createElement("canvas");
+      off.width = img.naturalWidth || img.width;
+      off.height = img.naturalHeight || img.height;
+      const octx = off.getContext("2d", { alpha: false });
+      octx.drawImage(img, 0, 0);
+      panoramaSource = off;
+    }
+
+    function resizeCanvas() {
+      const dpr = CANVAS_DPR();
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      markDirty();
+    }
+
+    function drawPanoramaView(targetCtx, source, width, height) {
+      const imgW = source.width;
+      const imgH = source.height;
+      const hFov = (view.fov * Math.PI) / 180;
+      const vFov = 2 * Math.atan(Math.tan(hFov / 2) * (height / width));
+      const srcW = (hFov / (2 * Math.PI)) * imgW;
+      const srcH = (vFov / Math.PI) * imgH;
+      const srcCenterX = (view.yaw / (2 * Math.PI) + 0.5) * imgW;
+      const srcCenterY = (0.5 - view.pitch / Math.PI) * imgH;
+      let sx = srcCenterX - srcW / 2;
+      const sy = Math.max(0, Math.min(imgH - srcH, srcCenterY - srcH / 2));
+
+      targetCtx.fillStyle = "#000";
+      targetCtx.fillRect(0, 0, width, height);
+      if (srcW <= 0 || srcH <= 0) return;
+
+      sx = ((sx % imgW) + imgW) % imgW;
+
+      if (sx + srcW <= imgW) {
+        targetCtx.drawImage(source, sx, sy, srcW, srcH, 0, 0, width, height);
+        return;
+      }
+
+      const rightSrcW = imgW - sx;
+      const leftSrcW = srcW - rightSrcW;
+      const rightDestW = width * (rightSrcW / srcW);
+      targetCtx.drawImage(source, sx, sy, rightSrcW, srcH, 0, 0, rightDestW, height);
+      targetCtx.drawImage(source, 0, sy, leftSrcW, srcH, rightDestW, 0, width - rightDestW, height);
+    }
+
+    function renderPanorama() {
+      if (!panoramaSource) return;
+      ctx.imageSmoothingEnabled = !isInteracting;
+      drawPanoramaView(ctx, panoramaSource, window.innerWidth, window.innerHeight);
+    }
+
+    function setControlsEnabled(_on) {
+      // pinch 중 dragPointerId로 드래그 잠금 처리
+    }
+
+    function pinchDistance(touches) {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.hypot(dx, dy);
+    }
+
+    // ── 로딩 · 오류 UI ────────────────────────────────────────────
+    function setLoading(on, text) {
+      state.loading = on;
+      loaderEl.classList.toggle("hidden", !on);
+      if (text) loaderTextEl.textContent = text;
+    }
+
+    function showError(message, path) {
+      setLoading(false);
+      errorMessageEl.textContent = message;
+      errorPathEl.textContent = path || "";
+      errorPanelEl.classList.add("visible");
+    }
+
+    function hideError() {
+      errorPanelEl.classList.remove("visible");
+    }
+
+    function revokeObjectUrl() {
+      if (state.objectUrl) {
+        URL.revokeObjectURL(state.objectUrl);
+        state.objectUrl = null;
+      }
+    }
+
+    // ── Firebase Storage URL 유틸 ─────────────────────────────────
+    function isFirebaseStorageUrl(src) {
+      return /^https:\/\/firebasestorage\.googleapis\.com\//.test(src);
+    }
+
+    function parseFirebaseStoragePath(src) {
+      if (isFirebaseStorageUrl(src)) {
+        const match = src.match(/\/o\/([^?]+)/);
+        return match ? decodeURIComponent(match[1]) : null;
+      }
+      if (src.startsWith("http") || src.startsWith("blob:") || src.startsWith("data:")) {
+        return null;
+      }
+      return src.replace(/^\/+/, "");
+    }
+
+    function toPublicImageUrl(src) {
+      if (isFirebaseStorageUrl(src) || src.startsWith("blob:") || src.startsWith("data:")) {
+        return src;
+      }
+      if (src.startsWith("http")) return src;
+      const storagePath = parseFirebaseStoragePath(src);
+      if (!storagePath) return src;
+      return `https://firebasestorage.googleapis.com/v0/b/${FIREBASE_BUCKET}/o/${encodeURIComponent(storagePath)}?alt=media`;
+    }
+
+    function loadImageElement(url) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.decoding = "async";
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error(`Image load failed: ${url}`));
+        img.src = url;
+      });
+    }
+
+    // ── Firestore exhibition 데이터 로드 ──────────────────────────
+    function normalizeExhibitionItem(raw) {
+      return {
+        id: raw.id || raw.docId || "",
+        src: raw.imageUrl || raw.src || raw.fileUrl || "",
+        title: raw.title || "",
+        description: raw.description || "",
+      };
+    }
+
+    async function waitForDataService(maxRetries = 50) {
+      for (let i = 0; i < maxRetries; i += 1) {
+        if (window.dataService?.getExhibitionItems) return window.dataService;
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      throw new Error("dataService를 불러올 수 없습니다.");
+    }
+
+    async function loadExhibitionItems() {
+      // URL: ?src=직접지정 | ?p=인덱스 (기본은 Firestore exhibition 컬렉션)
+      const params = new URLSearchParams(location.search);
+      const customSrc = params.get("src");
+
+      if (customSrc) {
+        items = [{ src: customSrc, title: "사용자 지정 파노라마", description: "" }];
+        return;
+      }
+
+      const ds = await waitForDataService();
+      const rows = await ds.getExhibitionItems();
+      items = rows.map(normalizeExhibitionItem).filter((item) => item.src);
+
+      if (!items.length) {
+        throw new Error("등록된 전시 파노라마가 없습니다.");
+      }
+
+      const customIndex = params.has("p") ? Number(params.get("p")) : null;
+      if (Number.isFinite(customIndex)) {
+        state.index = Math.max(0, Math.min(items.length - 1, customIndex));
+      }
+    }
+
+    // ── UI (정보 패널) ────────────────────────────────────────────
+    function updateInfo() {
+      const item = items[state.index];
+      if (!item) return;
+
+      const hasMeta = item.title || item.description;
+      infoEl.hidden = !hasMeta;
+      infoTitleEl.textContent = item.title || "";
+      infoDescEl.textContent = item.description || "";
+    }
+
+    function resetView() {
+      view.yaw = 0;
+      view.pitch = 0;
+      clearInertia();
+      applyFov(FOV_DEFAULT);
+      markDirty();
+    }
+
+    // ── 입력: 줌 · 핀치 · 포인터 드래그 ───────────────────────────
+    function onWheelZoom(event) {
+      event.preventDefault();
+      applyFov(getFov() - event.deltaY * ZOOM_WHEEL_STEP);
+    }
+
+    function onTouchStart(event) {
+      if (event.touches.length !== 2) return;
+      isPinching = true;
+      isInteracting = true;
+      clearInertia();
+      dragPointerId = null;
+      lastPinchDistance = pinchDistance(event.touches);
+      setControlsEnabled(false);
+      event.preventDefault();
+    }
+
+    function onTouchMove(event) {
+      if (!isPinching || event.touches.length < 2) return;
+      event.preventDefault();
+      const distance = pinchDistance(event.touches);
+      if (lastPinchDistance > 0) {
+        const ratio = distance / lastPinchDistance;
+        const dampedRatio = 1 + (ratio - 1) * PINCH_SENSITIVITY;
+        applyFov(getFov() / dampedRatio);
+      }
+      lastPinchDistance = distance;
+    }
+
+    function onTouchEnd(event) {
+      if (event.touches.length >= 2) return;
+      isPinching = false;
+      lastPinchDistance = 0;
+      isInteracting = dragPointerId !== null;
+      setControlsEnabled(true);
+      markDirty();
+    }
+
+    /** img 1회 로드 → 로컬 캐시 → Canvas 2D */
+    async function loadPanorama(src) {
+      hideError();
+      setLoading(true, "파노라마를 불러오는 중…");
+
+      const url = toPublicImageUrl(src);
+
+      if (!(src.startsWith("blob:") && src === state.objectUrl)) {
+        revokeObjectUrl();
+      }
+
+      const img = await loadImageElement(
+        src.startsWith("blob:") && src === state.objectUrl ? src : url
+      );
+      preparePanoramaSource(img);
+      resetView();
+      markDirty();
+      setLoading(false);
+    }
+
+    function getLoadErrorMessage(error, src) {
+      const message = error?.message || "";
+      if (message.includes("dataService")) {
+        return "데이터 서비스를 불러오지 못했습니다. 페이지를 새로고침해 주세요.";
+      }
+      if (message.includes("등록된 전시")) {
+        return "Firestore exhibition 컬렉션에 등록된 파노라마가 없습니다.";
+      }
+      if (error?.code === "permission-denied") {
+        return "Firestore exhibition 컬렉션 읽기 권한이 없습니다. Rules에서 read를 허용했는지 확인해 주세요.";
+      }
+      if (parseFirebaseStoragePath(src) || isFirebaseStorageUrl(src)) {
+        return "Firebase Storage 이미지를 불러오지 못했습니다. imageUrl과 Storage Rules를 확인해 주세요.";
+      }
+      if (src.startsWith("http")) {
+        return "외부 이미지 URL을 불러오지 못했습니다. imageUrl이 올바른 equirectangular(2:1) 이미지인지 확인해 주세요.";
+      }
+      return message || "이미지를 불러오지 못했습니다. equirectangular(2:1) 형식과 imageUrl을 확인해 주세요.";
+    }
+
+    async function enterFullscreen() {
+      if (!fullscreenPending || document.fullscreenElement || !document.documentElement.requestFullscreen) return;
+      try {
+        await document.documentElement.requestFullscreen();
+        fullscreenPending = false;
+      } catch {
+        // 사용자 제스처 전에는 브라우저가 차단합니다.
+      }
+    }
+
+    function onPointerDown(event) {
+      if (isPinching) return;
+      enterFullscreen();
+      isInteracting = true;
+      root.classList.add("dragging");
+      clearInertia();
+      dragPointerId = event.pointerId;
+      lastDragPos = { x: event.clientX, y: event.clientY };
+      markDirty();
+      root.setPointerCapture(event.pointerId);
+    }
+
+    function onPointerMove(event) {
+      if (event.pointerId !== dragPointerId || isPinching) return;
+      const dx = event.clientX - lastDragPos.x;
+      const dy = event.clientY - lastDragPos.y;
+      lastDragPos = { x: event.clientX, y: event.clientY };
+      applyDrag(dx, dy);
+    }
+
+    function onPointerUp(event) {
+      if (event.pointerId !== dragPointerId) return;
+      dragPointerId = null;
+      isInteracting = isPinching;
+      root.classList.remove("dragging");
+      markDirty();
+      try {
+        root.releasePointerCapture(event.pointerId);
+      } catch {
+        // ignore
+      }
+    }
+
+    function loadLocalFile(file) {
+      if (!file) return;
+      revokeObjectUrl();
+      const url = URL.createObjectURL(file);
+      state.objectUrl = url;
+
+      items.length = 0;
+      items.push({
+        src: url,
+        title: file.name.replace(/\.[^.]+$/, ""),
+        description: "로컬에서 불러온 파노라마",
+      });
+      state.index = 0;
+      updateInfo();
+      loadPanorama(url).catch(() => {
+        showError("선택한 파일을 파노라마로 표시할 수 없습니다.", file.name);
+      });
+    }
+
+    // ── 렌더 루프 · 리사이즈 ──────────────────────────────────────
+    function onResize() {
+      resizeCanvas();
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      const hasInertia = !isInteracting && applyInertia();
+      const active = isInteracting || hasInertia;
+
+      if (!needsRender && !active) return;
+
+      if (panoramaSource) renderPanorama();
+
+      if (!active) needsRender = false;
+    }
+
+    let animateStarted = false;
+    function startAnimate() {
+      if (animateStarted) return;
+      animateStarted = true;
+      animate();
+    }
+
+    // ── 이벤트 바인딩 · 초기화 ────────────────────────────────────
+    fileInputEl.addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
+      loadLocalFile(file);
+      e.target.value = "";
+    });
+
+    errorRetryEl.addEventListener("click", () => {
+      hideError();
+      init().catch((error) => {
+        console.error("[exhibition] retry failed:", error);
+        showError(getLoadErrorMessage(error, items[state.index]?.src || ""), items[state.index]?.src || "");
+      });
+    });
+
+    window.addEventListener("resize", onResize);
+    resizeCanvas();
+
+    const interactionRoot = root;
+    interactionRoot.addEventListener("wheel", onWheelZoom, { passive: false });
+    interactionRoot.addEventListener("touchstart", onTouchStart, { passive: false });
+    interactionRoot.addEventListener("touchmove", onTouchMove, { passive: false });
+    interactionRoot.addEventListener("touchend", onTouchEnd);
+    interactionRoot.addEventListener("touchcancel", onTouchEnd);
+    interactionRoot.addEventListener("pointerdown", onPointerDown);
+    interactionRoot.addEventListener("pointermove", onPointerMove);
+    interactionRoot.addEventListener("pointerup", onPointerUp);
+    interactionRoot.addEventListener("pointercancel", onPointerUp);
+
+    async function init() {
+      try {
+        await loadExhibitionItems();
+        updateInfo();
+        await loadPanorama(items[state.index].src);
+      } catch (error) {
+        console.error("[exhibition] init failed:", error);
+        showError(
+          getLoadErrorMessage(error, items[state.index]?.src || ""),
+          items[state.index]?.src || ""
+        );
+      }
+    }
+
+    startAnimate();
+    init();
+  </script>
+</body>
+</html>
