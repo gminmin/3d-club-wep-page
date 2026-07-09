@@ -49,13 +49,6 @@
       height: 100%;
     }
 
-    #panorama-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-
     .overlay {
       position: fixed;
       inset: 0;
@@ -188,7 +181,6 @@
     }
     .file-input { display: none; }
 
-    /* 조작 가이드. 가운데 아래 */
     .Operation-Guide {
       position: absolute;
       bottom: 100px;
@@ -215,6 +207,7 @@
       }
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
   <div id="canvas-root" aria-hidden="true"></div>
@@ -251,29 +244,31 @@
   <script type="module" src="dataService.js?v=2026-07-08-exhibition"></script>
 
   <script type="module">
-    // ── Firebase / 전역 상태 ──────────────────────────────────────
     const FIREBASE_BUCKET = "jb3d-a98fd.firebasestorage.app";
-
-    /** Firestore exhibition 컬렉션에서 불러온 파노라마 목록 */
     let items = [];
 
-    /** 앱 전역 상태 */
     const state = {
       index: 0,
       loading: false,
       objectUrl: null,
     };
 
-    /** 카메라 시점: yaw(좌우), pitch(상하), fov(확대), 관성 속도 */
-    const view = {
-      yaw: 0,
-      pitch: 0,
-      fov: 75,
-      yawVelocity: 0,
-      pitchVelocity: 0,
-    };
+    // 구형 좌표계 각도 변환 및 줌 설정
+    let lon = 0, lat = 0;
+    let phi = 0, theta = 0;
+    let fov = 75;
 
-    // ── DOM 참조 ──────────────────────────────────────────────────
+    // 관성 회전용 속도 변환
+    let targetLon = 0, targetLat = 0;
+    let isUserInteracting = false;
+    let onPointerDownLon = 0, onPointerDownLat = 0;
+    let onPointerDownPointerX = 0, onPointerDownPointerY = 0;
+
+    // 핀치 줌 상태 기록
+    let startTouchDistance = 0;
+    let startFov = 75;
+
+    // DOM 참조
     const loaderEl = document.getElementById("loader");
     const loaderTextEl = document.getElementById("loader-text");
     const infoEl = document.getElementById("info");
@@ -286,177 +281,36 @@
     const errorRetryEl = document.getElementById("error-retry");
     const root = document.getElementById("canvas-root");
 
-    // 조작 감도 · 줌 · 관성 튜닝 값
     const FOV_MIN = 40;
     const FOV_MAX = 95;
-    const ZOOM_WHEEL_STEP = 0.022;
-    const PINCH_SENSITIVITY = 0.45;
-    const DRAG_YAW_SCALE = 0.0019;
-    const DRAG_PITCH_SCALE = 0.0019;
-    const INERTIA_DAMPING = 0.93;
-    const INERTIA_BLEND = 0.38;
-    const INERTIA_MIN = 0.00004;
-    const FOV_DEFAULT = 75;
-    const CANVAS_DPR = () => Math.min(window.devicePixelRatio, 1.25);
-
-    const canvas = document.createElement("canvas");
-    canvas.id = "panorama-canvas";
-    root.appendChild(canvas);
-    const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
-
-    // 런타임 리소스 · 입력 상태
-    let isPinching = false;
-    let lastPinchDistance = 0;
-    let panoramaSource = null;
-    let dragPointerId = null;
-    let lastDragPos = { x: 0, y: 0 };
-    let needsRender = true;
-    let isInteracting = false;
     let fullscreenPending = true;
 
-    function markDirty() {
-      needsRender = true;
-    }
+    // ── Three.js 엔진 초기화 ──────────────────────────────────────
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 1, 1100);
+    
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    root.appendChild(renderer.domElement);
 
-    // ── 시점 · FOV · 드래그 · 관성 ────────────────────────────────
-    function clampFov(fov) {
-      return Math.max(FOV_MIN, Math.min(FOV_MAX, fov));
-    }
+    // 내부를 바라보는 구(Sphere) 메쉬 생성
+    const geometry = new THREE.SphereGeometry(500, 60, 40);
+    geometry.scale(-1, 1, 1); // 텍스처 뒤집어서 안쪽에서 보이게 처리
+    const material = new THREE.MeshBasicMaterial();
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
 
-    function getFov() {
-      return view.fov;
-    }
-
-    function applyFov(fov) {
-      const prevFov = view.fov;
-      view.fov = clampFov(fov);
-      if (prevFov !== view.fov) {
-        const ratio = view.fov / prevFov;
-        view.yawVelocity *= ratio;
-        view.pitchVelocity *= ratio;
-      }
-      markDirty();
-    }
-
-    function clampPitch(pitch) {
-      return Math.max(-Math.PI / 2 + 0.05, Math.min(Math.PI / 2 - 0.05, pitch));
-    }
-
-    function getRotationFovFactor() {
-      // 확대(FOV↓) 시 회전 속도 보정 — 화면상 체감 속도 유지
-      return view.fov / FOV_DEFAULT;
-    }
-
-    function clearInertia() {
-      view.yawVelocity = 0;
-      view.pitchVelocity = 0;
-    }
-
-    function applyDrag(dx, dy, trackVelocity = true) {
-      const fovFactor = getRotationFovFactor();
-      const yawDelta = -dx * DRAG_YAW_SCALE * fovFactor;
-      const pitchDelta = dy * DRAG_PITCH_SCALE * fovFactor;
-      view.yaw += yawDelta;
-      view.pitch = clampPitch(view.pitch + pitchDelta);
-      if (trackVelocity) {
-        view.yawVelocity = view.yawVelocity * (1 - INERTIA_BLEND) + yawDelta * INERTIA_BLEND;
-        view.pitchVelocity = view.pitchVelocity * (1 - INERTIA_BLEND) + pitchDelta * INERTIA_BLEND;
-      }
-      markDirty();
-    }
-
-    function applyInertia() {
-      // 손을 뗀 뒤 yawVelocity / pitchVelocity를 감쇠시키며 관성 회전
-      const yawActive = Math.abs(view.yawVelocity) > INERTIA_MIN;
-      const pitchActive = Math.abs(view.pitchVelocity) > INERTIA_MIN;
-      if (!yawActive && !pitchActive) {
-        clearInertia();
-        return false;
-      }
-
-      if (yawActive) {
-        view.yaw += view.yawVelocity;
-        view.yawVelocity *= INERTIA_DAMPING;
-      }
-      if (pitchActive) {
-        view.pitch = clampPitch(view.pitch + view.pitchVelocity);
-        view.pitchVelocity *= INERTIA_DAMPING;
-        if (view.pitch <= -Math.PI / 2 + 0.05 || view.pitch >= Math.PI / 2 - 0.05) {
-          view.pitchVelocity = 0;
-        }
-      }
-
-      markDirty();
-      return true;
-    }
-
-    function preparePanoramaSource(img) {
-      // Firebase에서 전체 원본 1회만 받아 로컬 캔버스에 복사 (압축·재요청 없음)
-      const off = document.createElement("canvas");
-      off.width = img.naturalWidth || img.width;
-      off.height = img.naturalHeight || img.height;
-      const octx = off.getContext("2d", { alpha: false });
-      octx.drawImage(img, 0, 0);
-      panoramaSource = off;
-    }
+    const textureLoader = new THREE.TextureLoader();
+      textureLoader.setCrossOrigin('anonymous'); // CORS 문제 해결을 위해 이 라인을 반드시 추가합니다.
 
     function resizeCanvas() {
-      const dpr = CANVAS_DPR();
-      canvas.width = Math.floor(window.innerWidth * dpr);
-      canvas.height = Math.floor(window.innerHeight * dpr);
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      markDirty();
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-    function drawPanoramaView(targetCtx, source, width, height) {
-      const imgW = source.width;
-      const imgH = source.height;
-      const hFov = (view.fov * Math.PI) / 180;
-      const vFov = 2 * Math.atan(Math.tan(hFov / 2) * (height / width));
-      const srcW = (hFov / (2 * Math.PI)) * imgW;
-      const srcH = (vFov / Math.PI) * imgH;
-      const srcCenterX = (view.yaw / (2 * Math.PI) + 0.5) * imgW;
-      const srcCenterY = (0.5 - view.pitch / Math.PI) * imgH;
-      let sx = srcCenterX - srcW / 2;
-      const sy = Math.max(0, Math.min(imgH - srcH, srcCenterY - srcH / 2));
-
-      targetCtx.fillStyle = "#000";
-      targetCtx.fillRect(0, 0, width, height);
-      if (srcW <= 0 || srcH <= 0) return;
-
-      sx = ((sx % imgW) + imgW) % imgW;
-
-      if (sx + srcW <= imgW) {
-        targetCtx.drawImage(source, sx, sy, srcW, srcH, 0, 0, width, height);
-        return;
-      }
-
-      const rightSrcW = imgW - sx;
-      const leftSrcW = srcW - rightSrcW;
-      const rightDestW = width * (rightSrcW / srcW);
-      targetCtx.drawImage(source, sx, sy, rightSrcW, srcH, 0, 0, rightDestW, height);
-      targetCtx.drawImage(source, 0, sy, leftSrcW, srcH, rightDestW, 0, width - rightDestW, height);
-    }
-
-    function renderPanorama() {
-      if (!panoramaSource) return;
-      ctx.imageSmoothingEnabled = !isInteracting;
-      drawPanoramaView(ctx, panoramaSource, window.innerWidth, window.innerHeight);
-    }
-
-    function setControlsEnabled(_on) {
-      // pinch 중 dragPointerId로 드래그 잠금 처리
-    }
-
-    function pinchDistance(touches) {
-      const dx = touches[0].clientX - touches[1].clientX;
-      const dy = touches[0].clientY - touches[1].clientY;
-      return Math.hypot(dx, dy);
-    }
-
-    // ── 로딩 · 오류 UI ────────────────────────────────────────────
+    // ── UI 제어 유틸 ───────────────────────────────────────────
     function setLoading(on, text) {
       state.loading = on;
       loaderEl.classList.toggle("hidden", !on);
@@ -481,7 +335,7 @@
       }
     }
 
-    // ── Firebase Storage URL 유틸 ─────────────────────────────────
+    // ── 이미지 주소 파싱 ─────────────────────────────────────────
     function isFirebaseStorageUrl(src) {
       return /^https:\/\/firebasestorage\.googleapis\.com\//.test(src);
     }
@@ -507,17 +361,43 @@
       return `https://firebasestorage.googleapis.com/v0/b/${FIREBASE_BUCKET}/o/${encodeURIComponent(storagePath)}?alt=media`;
     }
 
-    function loadImageElement(url) {
+    // ── 파노라마 로더 (WebGL 텍스처 바인딩) ──────────────────────
+    function loadPanorama(src) {
+      hideError();
+      setLoading(true, "파노라마를 불러오는 중…");
+
+      const url = toPublicImageUrl(src);
+
       return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.decoding = "async";
-        img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error(`Image load failed: ${url}`));
-        img.src = url;
+        textureLoader.load(
+          url,
+          (texture) => {
+            texture.minFilter = THREE.LinearFilter;
+            texture.generateMipmaps = false;
+            
+            if (material.map) material.map.dispose();
+            material.map = texture;
+            material.needsUpdate = true;
+
+            // 시점 초기화
+            lon = 0; lat = 0;
+            targetLon = 0; targetLat = 0;
+            fov = 75;
+            camera.fov = fov;
+            camera.updateProjectionMatrix();
+
+            setLoading(false);
+            resolve();
+          },
+          undefined,
+          (err) => {
+            reject(new Error(`텍스처 로드 실패: ${url}`));
+          }
+        );
       });
     }
 
-    // ── Firestore exhibition 데이터 로드 ──────────────────────────
+    // ── 데이터 연동 ───────────────────────────────────────────
     function normalizeExhibitionItem(raw) {
       return {
         id: raw.id || raw.docId || "",
@@ -536,7 +416,6 @@
     }
 
     async function loadExhibitionItems() {
-      // URL: ?src=직접지정 | ?p=인덱스 (기본은 Firestore exhibition 컬렉션)
       const params = new URLSearchParams(location.search);
       const customSrc = params.get("src");
 
@@ -559,7 +438,6 @@
       }
     }
 
-    // ── UI (정보 패널) ────────────────────────────────────────────
     function updateInfo() {
       const item = items[state.index];
       if (!item) return;
@@ -570,135 +448,78 @@
       infoDescEl.textContent = item.description || "";
     }
 
-    function resetView() {
-      view.yaw = 0;
-      view.pitch = 0;
-      clearInertia();
-      applyFov(FOV_DEFAULT);
-      markDirty();
-    }
-
-    // ── 입력: 줌 · 핀치 · 포인터 드래그 ───────────────────────────
-    function onWheelZoom(event) {
-      event.preventDefault();
-      applyFov(getFov() - event.deltaY * ZOOM_WHEEL_STEP);
-    }
-
-    function onTouchStart(event) {
-      if (event.touches.length !== 2) return;
-      isPinching = true;
-      isInteracting = true;
-      clearInertia();
-      dragPointerId = null;
-      lastPinchDistance = pinchDistance(event.touches);
-      setControlsEnabled(false);
-      event.preventDefault();
-    }
-
-    function onTouchMove(event) {
-      if (!isPinching || event.touches.length < 2) return;
-      event.preventDefault();
-      const distance = pinchDistance(event.touches);
-      if (lastPinchDistance > 0) {
-        const ratio = distance / lastPinchDistance;
-        const dampedRatio = 1 + (ratio - 1) * PINCH_SENSITIVITY;
-        applyFov(getFov() / dampedRatio);
-      }
-      lastPinchDistance = distance;
-    }
-
-    function onTouchEnd(event) {
-      if (event.touches.length >= 2) return;
-      isPinching = false;
-      lastPinchDistance = 0;
-      isInteracting = dragPointerId !== null;
-      setControlsEnabled(true);
-      markDirty();
-    }
-
-    /** img 1회 로드 → 로컬 캐시 → Canvas 2D */
-    async function loadPanorama(src) {
-      hideError();
-      setLoading(true, "파노라마를 불러오는 중…");
-
-      const url = toPublicImageUrl(src);
-
-      if (!(src.startsWith("blob:") && src === state.objectUrl)) {
-        revokeObjectUrl();
-      }
-
-      const img = await loadImageElement(
-        src.startsWith("blob:") && src === state.objectUrl ? src : url
-      );
-      preparePanoramaSource(img);
-      resetView();
-      markDirty();
-      setLoading(false);
-    }
-
-    function getLoadErrorMessage(error, src) {
-      const message = error?.message || "";
-      if (message.includes("dataService")) {
-        return "데이터 서비스를 불러오지 못했습니다. 페이지를 새로고침해 주세요.";
-      }
-      if (message.includes("등록된 전시")) {
-        return "Firestore exhibition 컬렉션에 등록된 파노라마가 없습니다.";
-      }
-      if (error?.code === "permission-denied") {
-        return "Firestore exhibition 컬렉션 읽기 권한이 없습니다. Rules에서 read를 허용했는지 확인해 주세요.";
-      }
-      if (parseFirebaseStoragePath(src) || isFirebaseStorageUrl(src)) {
-        return "Firebase Storage 이미지를 불러오지 못했습니다. imageUrl과 Storage Rules를 확인해 주세요.";
-      }
-      if (src.startsWith("http")) {
-        return "외부 이미지 URL을 불러오지 못했습니다. imageUrl이 올바른 equirectangular(2:1) 이미지인지 확인해 주세요.";
-      }
-      return message || "이미지를 불러오지 못했습니다. equirectangular(2:1) 형식과 imageUrl을 확인해 주세요.";
-    }
-
     async function enterFullscreen() {
       if (!fullscreenPending || document.fullscreenElement || !document.documentElement.requestFullscreen) return;
       try {
         await document.documentElement.requestFullscreen();
         fullscreenPending = false;
-      } catch {
-        // 사용자 제스처 전에는 브라우저가 차단합니다.
-      }
+      } catch {}
     }
 
+    // ── 통합 포인터(마우스/터치 드래그) 이벤트 ──────────────────────────
     function onPointerDown(event) {
-      if (isPinching) return;
+      if (event.isPrimary === false) return;
       enterFullscreen();
-      isInteracting = true;
+
+      isUserInteracting = true;
       root.classList.add("dragging");
-      clearInertia();
-      dragPointerId = event.pointerId;
-      lastDragPos = { x: event.clientX, y: event.clientY };
-      markDirty();
-      root.setPointerCapture(event.pointerId);
+
+      onPointerDownPointerX = event.clientX;
+      onPointerDownPointerY = event.clientY;
+
+      onPointerDownLon = lon;
+      onPointerDownLat = lat;
     }
 
     function onPointerMove(event) {
-      if (event.pointerId !== dragPointerId || isPinching) return;
-      const dx = event.clientX - lastDragPos.x;
-      const dy = event.clientY - lastDragPos.y;
-      lastDragPos = { x: event.clientX, y: event.clientY };
-      applyDrag(dx, dy);
+      if (event.isPrimary === false || !isUserInteracting) return;
+
+      // 시야각(FOV)이 좁을수록 정밀하게 회전하도록 보정
+      const factor = fov / 75; 
+      targetLon = (onPointerDownPointerX - event.clientX) * 0.15 * factor + onPointerDownLon;
+      targetLat = (event.clientY - onPointerDownPointerY) * 0.15 * factor + onPointerDownLat;
     }
 
     function onPointerUp(event) {
-      if (event.pointerId !== dragPointerId) return;
-      dragPointerId = null;
-      isInteracting = isPinching;
+      if (event.isPrimary === false) return;
+      isUserInteracting = false;
       root.classList.remove("dragging");
-      markDirty();
-      try {
-        root.releasePointerCapture(event.pointerId);
-      } catch {
-        // ignore
+    }
+
+    // 마우스 스크롤 줌
+    function onDocumentMouseWheel(event) {
+      fov += event.deltaY * 0.05;
+      fov = Math.max(FOV_MIN, Math.min(FOV_MAX, fov));
+      camera.fov = fov;
+      camera.updateProjectionMatrix();
+    }
+
+    // 모바일 멀티터치 핀치 줌 처리
+    function onTouchStart(event) {
+      if (event.touches.length === 2) {
+        isUserInteracting = false; 
+        const dx = event.touches[0].pageX - event.touches[1].pageX;
+        const dy = event.touches[0].pageY - event.touches[1].pageY;
+        startTouchDistance = Math.hypot(dx, dy);
+        startFov = fov;
       }
     }
 
+    function onTouchMove(event) {
+      if (event.touches.length === 2 && startTouchDistance > 0) {
+        const dx = event.touches[0].pageX - event.touches[1].pageX;
+        const dy = event.touches[0].pageY - event.touches[1].pageY;
+        const currentDistance = Math.hypot(dx, dy);
+        
+        const factor = startTouchDistance / currentDistance;
+        fov = startFov * factor;
+        fov = Math.max(FOV_MIN, Math.min(FOV_MAX, fov));
+        camera.fov = fov;
+        camera.updateProjectionMatrix();
+      }
+    }
+
+    // 로컬 파일 업로드 처리
     function loadLocalFile(file) {
       if (!file) return;
       revokeObjectUrl();
@@ -718,32 +539,36 @@
       });
     }
 
-    // ── 렌더 루프 · 리사이즈 ──────────────────────────────────────
-    function onResize() {
-      resizeCanvas();
-    }
-
+    // ── 메인 애니메이션 루프 (관성 인터폴레이션 포함) ─────────────────
     function animate() {
       requestAnimationFrame(animate);
 
-      const hasInertia = !isInteracting && applyInertia();
-      const active = isInteracting || hasInertia;
+      if (isUserInteracting === false) {
+        // 부드러운 관성 감쇠 알고리즘 (Lerp)
+        lon += (targetLon - lon) * 0.15;
+        lat += (targetLat - lat) * 0.15;
+      } else {
+        lon = targetLon;
+        lat = targetLat;
+      }
 
-      if (!needsRender && !active) return;
+      // 90도 회전 제한으로 화면 뒤집힘 방지
+      lat = Math.max(-85, Math.min(85, lat));
 
-      if (panoramaSource) renderPanorama();
+      phi = THREE.MathUtils.degToRad(90 - lat);
+      theta = THREE.MathUtils.degToRad(lon);
 
-      if (!active) needsRender = false;
+      // 구형 삼각함수를 기반으로 카메라가 바라보는 3D 벡터 계산
+      const target = new THREE.Vector3();
+      target.x = 500 * Math.sin(phi) * Math.sin(theta);
+      target.y = 500 * Math.cos(phi);
+      target.z = 500 * Math.sin(phi) * Math.cos(theta);
+
+      camera.lookAt(target);
+      renderer.render(scene, camera);
     }
 
-    let animateStarted = false;
-    function startAnimate() {
-      if (animateStarted) return;
-      animateStarted = true;
-      animate();
-    }
-
-    // ── 이벤트 바인딩 · 초기화 ────────────────────────────────────
+    // ── 이벤트 바인딩 및 초기화 ────────────────────────────────────
     fileInputEl.addEventListener("change", (e) => {
       const file = e.target.files?.[0];
       loadLocalFile(file);
@@ -753,24 +578,22 @@
     errorRetryEl.addEventListener("click", () => {
       hideError();
       init().catch((error) => {
-        console.error("[exhibition] retry failed:", error);
-        showError(getLoadErrorMessage(error, items[state.index]?.src || ""), items[state.index]?.src || "");
+        showError("데이터를 다시 불러오지 못했습니다.", items[state.index]?.src || "");
       });
     });
 
-    window.addEventListener("resize", onResize);
-    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
 
-    const interactionRoot = root;
-    interactionRoot.addEventListener("wheel", onWheelZoom, { passive: false });
-    interactionRoot.addEventListener("touchstart", onTouchStart, { passive: false });
-    interactionRoot.addEventListener("touchmove", onTouchMove, { passive: false });
-    interactionRoot.addEventListener("touchend", onTouchEnd);
-    interactionRoot.addEventListener("touchcancel", onTouchEnd);
-    interactionRoot.addEventListener("pointerdown", onPointerDown);
-    interactionRoot.addEventListener("pointermove", onPointerMove);
-    interactionRoot.addEventListener("pointerup", onPointerUp);
-    interactionRoot.addEventListener("pointercancel", onPointerUp);
+    // PointerEvents 하나로 마우스와 터치를 모두 유연하게 핸들링
+    root.addEventListener("pointerdown", onPointerDown);
+    root.addEventListener("pointermove", onPointerMove);
+    root.addEventListener("pointerup", onPointerUp);
+    root.addEventListener("pointercancel", onPointerUp);
+    root.addEventListener("wheel", onDocumentMouseWheel, { passive: true });
+
+    // 멀티터치(핀치줌)를 위한 팹 터치 가로채기
+    root.addEventListener("touchstart", onTouchStart, { passive: true });
+    root.addEventListener("touchmove", onTouchMove, { passive: true });
 
     async function init() {
       try {
@@ -778,15 +601,12 @@
         updateInfo();
         await loadPanorama(items[state.index].src);
       } catch (error) {
-        console.error("[exhibition] init failed:", error);
-        showError(
-          getLoadErrorMessage(error, items[state.index]?.src || ""),
-          items[state.index]?.src || ""
-        );
+        console.error(error);
+        showError("파노라마 초기화에 실패했습니다.", items[state.index]?.src || "");
       }
     }
 
-    startAnimate();
+    animate();
     init();
   </script>
 </body>
