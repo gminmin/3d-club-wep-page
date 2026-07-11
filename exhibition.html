@@ -439,13 +439,8 @@
     }
 
     function updateInfo() {
-      const item = items[state.index];
-      if (!item) return;
-
-      const hasMeta = item.title || item.description;
-      infoEl.hidden = !hasMeta;
-      infoTitleEl.textContent = item.title || "";
-      infoDescEl.textContent = item.description || "";
+      // 정보창을 항상 비활성화(hidden)로 유지합니다.
+      infoEl.hidden = true;
     }
 
     async function enterFullscreen() {
@@ -476,7 +471,8 @@
 
       // 시야각(FOV)이 좁을수록 정밀하게 회전하도록 보정
       const factor = fov / 75; 
-      targetLon = (onPointerDownPointerX - event.clientX) * 0.15 * factor + onPointerDownLon;
+      // 좌우 이동 반전 처리: 기존 - 를 + 로 변경하여 마우스 드래그 방향과 화면 움직임을 일치시킵니다.
+      targetLon = (event.clientX - onPointerDownPointerX) * 0.15 * factor + onPointerDownLon;
       targetLat = (event.clientY - onPointerDownPointerY) * 0.15 * factor + onPointerDownLat;
     }
 
@@ -560,9 +556,9 @@
 
       // 구형 삼각함수를 기반으로 카메라가 바라보는 3D 벡터 계산
       const target = new THREE.Vector3();
-      target.x = 500 * Math.sin(phi) * Math.sin(theta);
-      target.y = 500 * Math.cos(phi);
-      target.z = 500 * Math.sin(phi) * Math.cos(theta);
+      target.x = 470 * Math.sin(phi) * Math.sin(theta);
+      target.y = 470 * Math.cos(phi);
+      target.z = 470 * Math.sin(phi) * Math.cos(theta);
 
       camera.lookAt(target);
       renderer.render(scene, camera);
