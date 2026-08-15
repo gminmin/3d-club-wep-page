@@ -251,21 +251,25 @@ function setupAdmin() {
   async function renderWorks() {
     try {
       const listBody = document.getElementById("work-list-body");
-      listBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+      listBody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
       const data = await ds.getWorks();
       listBody.innerHTML = data.length === 0
-        ? '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">등록된 작품이 없습니다.</td></tr>'
-        : data.map(w => `
-          <tr>
-            <td><span class="badge">${w.category}</span></td>
-            <td><strong>${w.title}</strong></td>
-            <td>${w.author}</td>
-            <td>
-              <button class="btn-delete" style="background:#00000000; margin-right:5px;" onclick="editWork('${w.id}', '${w.title.replace(/'/g, "\\'")}', '${w.category.replace(/'/g, "\\'")}', '${w.author.replace(/'/g, "\\'")}')">수정</button>
-              <button class="btn-delete" onclick="deleteItem('work', '${w.id}')">삭제</button>
-            </td>
-          </tr>
-        `).join("");
+        ? '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">등록된 작품이 없습니다.</td></tr>'
+        : data.map(w => {
+            const linkLabel = w.link ? '<a href="' + w.link + '" target="_blank" rel="noopener noreferrer" style="color:#04ADC0; text-decoration: underline;">이동</a>' : '<span style="color:#94a3b8;">없음</span>';
+            return `
+              <tr>
+                <td><span class="badge">${w.category}</span></td>
+                <td><strong>${w.title}</strong></td>
+                <td>${w.author}</td>
+                <td>${linkLabel}</td>
+                <td>
+                  <button class="btn-delete" style="background:#00000000; margin-right:5px;" onclick="editWork('${w.id}', '${w.title.replace(/'/g, "\\'")}', '${w.category.replace(/'/g, "\\'")}', '${w.author.replace(/'/g, "\\'")}', '${(w.link || "").replace(/'/g, "\\'")}')">수정</button>
+                  <button class="btn-delete" onclick="deleteItem('work', '${w.id}')">삭제</button>
+                </td>
+              </tr>
+            `;
+          }).join("");
     } catch (error) {
       console.error("Work load failed:", error);
       document.getElementById("work-list-body").innerHTML = '<tr><td colspan="4" style="text-align:center; color:#ef4444;">데이터를 불러오지 못했습니다.</td></tr>';
@@ -413,6 +417,7 @@ function setupAdmin() {
       const title = document.getElementById("work-title").value.trim();
       const category = document.getElementById("work-category").value.trim();
       const author = document.getElementById("work-author").value.trim();
+      const link = document.getElementById("work-link").value.trim();
       const file = document.getElementById("work-file").files[0];
 
       if (!title || !category || !author) {
@@ -421,7 +426,7 @@ function setupAdmin() {
         return;
       }
 
-      const workData = { title, category, author };
+      const workData = { title, category, author, link: link || "" };
 
       if (file) {
         workData.imageUrl = await ds.uploadFile(file, "works");
@@ -715,6 +720,7 @@ function setupAdmin() {
   window.resetWorkForm = () => {
     document.getElementById("work-id").value = "";
     document.getElementById("work-form").reset();
+    document.getElementById("work-link").value = "";
     document.getElementById("work-form").querySelector('button[type="submit"]').innerText = "저장";
   };
 
@@ -757,11 +763,12 @@ function setupAdmin() {
     document.getElementById("notice-form").querySelector('button[type="submit"]').innerText = "수정하기";
   };
 
-  window.editWork = (id, title, category, author) => {
+  window.editWork = (id, title, category, author, link = "") => {
     document.getElementById("work-id").value = id;
     document.getElementById("work-title").value = title;
     document.getElementById("work-category").value = category;
     document.getElementById("work-author").value = author;
+    document.getElementById("work-link").value = link || "";
     document.getElementById("work-form").style.display = "flex";
     document.getElementById("work-form").querySelector('button[type="submit"]').innerText = "수정하기";
   };

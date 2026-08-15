@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3D Club Portfolio Player</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      :root {
+        --player-bg: #ffffff;
+        --player-surface: #f4fbfb;
+        --panel-bg: #ffffff;
+        --panel-border: rgba(4, 173, 192, 0.15);
+        --pill-bg: rgba(4, 173, 192, 0.08);
+        --teal-strong: #04adc0;
+        --teal-soft: #dff7f8;
+        --text-strong: #0d1b1f;
+        --text-muted: #546b72;
+        --shadow-soft: 0 24px 56px rgba(4, 173, 192, 0.12);
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body.player-page {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: linear-gradient(180deg, #ffffff 0%, #f5fbfb 100%);
+      }
+
+      .portfolio-shell {
+        width: 100%;
+        height: 100vh;
+        margin: 0 auto;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        background: #ffffff;
+      }
+
+      .portfolio-header {
+        display: none;
+      }
+
+      .player-layout {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        width: 100%;
+      }
+
+      .video-stage {
+        width: 100%;
+        max-width: 100%;
+        background: #000;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        overflow: hidden;
+        /* Only the information panel reserves space; controls overlay the video. */
+        display: grid;
+        grid-template-rows: minmax(0, 1fr) auto;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .video-frame {
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+        height: 100%;
+        /* JavaScript sizes this box to each video's intrinsic ratio. */
+        /* Put any spare space above the video, never between it and the UI. */
+        align-self: end;
+        justify-self: center;
+        min-height: 0;
+        background: #000;
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+        isolation: isolate;
+        grid-row: 1;
+        grid-column: 1;
+      }
+
+      .video-frame video {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        object-fit: contain;
+        object-position: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      .video-overlay {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(180deg, rgba(4,173,192,0.06), rgba(15,23,32,0.22));
+        z-index: 2;
+      }
+
+      .video-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        min-height: 72px;
+        margin: 0 auto;
+        padding: 12px 18px 14px;
+        background: transparent;
+        border: 0;
+        outline: 0;
+        box-shadow: none;
+        position: relative;
+        z-index: 3;
+        grid-row: 1;
+        grid-column: 1;
+        align-self: end;
+      }
+
+      .icon-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: transparent;
+        color: #ffffff;
+        border: 0;
+        font-size: 1rem;
+        box-shadow: none;
+        transition: background 0.2s ease;
+      }
+
+      .icon-btn:hover {
+        background: rgba(15, 23, 32, 0.72);
+      }
+
+      .icon-btn svg {
+        width: 20px;
+        height: 20px;
+        vertical-align: middle;
+      }
+
+      .progress-wrap {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        position: relative;
+        --progress-percent: 0%;
+        transition: margin-left 0.2s ease;
+      }
+
+      .volume-wrap:hover ~ .progress-wrap,
+      .volume-wrap:focus-within ~ .progress-wrap {
+        margin-left: 90px;
+      }
+
+      .progress-rail {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        left: 0;
+        height: 4px;
+        transform: translateY(-50%);
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.58);
+        pointer-events: none;
+        z-index: 1;
+        transition: height 0.18s ease;
+      }
+
+      .progress-fill {
+        position: absolute;
+        inset: 0;
+        background: var(--grad-main);
+        clip-path: inset(0 calc(100% - var(--progress-percent)) 0 0);
+        transition: none;
+      }
+
+      .progress-wrap:hover .progress-rail {
+        height: 8px;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        height: 20px;
+        margin: 0;
+        appearance: none;
+        -webkit-appearance: none;
+        background: transparent;
+        cursor: pointer;
+        position: relative;
+        z-index: 2;
+      }
+
+      input[type="range"]::-webkit-slider-runnable-track {
+        height: 4px;
+        border-radius: 999px;
+        background: transparent;
+        transition: height 0.18s ease;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        width: 12px;
+        height: 12px;
+        margin-top: -4px;
+        border: 0;
+        border-radius: 50%;
+        appearance: none;
+        -webkit-appearance: none;
+        background: var(--teal-strong);
+        transition: width 0.18s ease, height 0.18s ease, margin-top 0.18s ease;
+      }
+
+      .progress-wrap:hover input[type="range"]::-webkit-slider-runnable-track {
+        height: 8px;
+      }
+
+      .progress-wrap:hover input[type="range"]::-webkit-slider-thumb {
+        width: 16px;
+        height: 16px;
+        margin-top: -4px;
+      }
+
+      input[type="range"]::-moz-range-track {
+        height: 4px;
+        border-radius: 999px;
+        background: transparent;
+        transition: height 0.18s ease;
+      }
+
+      input[type="range"]::-moz-range-thumb {
+        width: 12px;
+        height: 12px;
+        border: 0;
+        border-radius: 50%;
+        background: var(--teal-strong);
+      }
+
+      .progress-wrap:hover input[type="range"]::-moz-range-track {
+        height: 8px;
+      }
+
+      .progress-wrap:hover input[type="range"]::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+      }
+
+      input[type="range"]::-moz-range-progress {
+        background: transparent;
+      }
+
+      .volume-wrap {
+        display: flex;
+        align-items: center;
+        position: relative;
+        flex: 0 0 40px;
+        width: 40px;
+        overflow: visible;
+        z-index: 3;
+      }
+
+      .volume-wrap::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 40px;
+        width: 8px;
+        height: 40px;
+      }
+
+      .volume-wrap input[type="range"] {
+        position: absolute;
+        top: 50%;
+        left: 48px;
+        width: 0;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-50%);
+        transition: width 0.2s ease, opacity 0.15s ease;
+      }
+
+      .volume-wrap:hover input[type="range"],
+      .volume-wrap:focus-within input[type="range"] {
+        width: 82px;
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .volume-wrap input[type="range"]::-webkit-slider-runnable-track {
+        height: 4px;
+        border-radius: 999px;
+        background: linear-gradient(
+          to right,
+          #ffffff 0 var(--volume-percent, 100%),
+          rgba(255, 255, 255, 0.58) var(--volume-percent, 100%) 100%
+        );
+      }
+
+      .volume-wrap input[type="range"]::-webkit-slider-thumb {
+        width: 12px;
+        height: 12px;
+        margin-top: -4px;
+        border: 0;
+        border-radius: 50%;
+        background: #ffffff;
+      }
+
+      .volume-wrap input[type="range"]::-moz-range-track {
+        height: 4px;
+        border-radius: 999px;
+        background: linear-gradient(
+          to right,
+          #ffffff 0 var(--volume-percent, 100%),
+          rgba(255, 255, 255, 0.58) var(--volume-percent, 100%) 100%
+        );
+      }
+
+      .volume-wrap input[type="range"]::-moz-range-thumb {
+        width: 12px;
+        height: 12px;
+        border: 0;
+        border-radius: 50%;
+        background: #ffffff;
+      }
+
+      .volume-symbol {
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2;
+      }
+
+      #volume-toggle .volume-symbol {
+        width: 23px;
+        height: 23px;
+      }
+
+      .volume-symbol .volume-body {
+        fill: currentColor;
+      }
+
+      .volume-symbol .volume-muted {
+        display: none;
+      }
+
+      #volume-toggle.is-muted .volume-wave {
+        display: none;
+      }
+
+      #volume-toggle.is-low-volume .volume-wave-outer {
+        display: none;
+      }
+
+      #volume-toggle.is-muted .volume-muted {
+        display: block;
+      }
+
+      .time-label {
+        min-width: 104px;
+        text-align: right;
+        font-size: 0.8rem;
+        color: #ffffff;
+        font-weight: 600;
+      }
+
+      .video-info {
+        width: 100%;
+        margin: 0 auto;
+        padding: 14px 18px 24px;
+        background: #ffffff;
+        border-top: 1px solid rgba(4, 173, 192, 0.12);
+        position: relative;
+        z-index: 3;
+        grid-row: 2;
+        grid-column: 1;
+      }
+
+      .video-info h2 {
+        margin: 0 0 6px;
+        font-size: clamp(1.2rem, 1.5vw, 1.6rem);
+        color: var(--text-strong);
+      }
+
+      .video-info p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.7;
+        max-width: 980px;
+        margin: 0;
+      }
+
+      .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.46rem 0.8rem;
+        border-radius: 999px;
+        background: var(--pill-bg);
+        border: 1px solid rgba(4, 173, 192, 0.16);
+        color: var(--teal-strong);
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
+
+      :fullscreen .portfolio-shell {
+        width: 100vw;
+        max-width: none;
+        padding: 0;
+      }
+
+      :fullscreen .portfolio-header,
+      :fullscreen .video-info {
+        display: none;
+      }
+
+      :fullscreen .player-layout {
+        height: 100vh;
+        display: flex;
+        align-items: stretch;
+      }
+
+      :fullscreen .video-stage {
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+        border-radius: 0;
+        box-shadow: none;
+        border: 0;
+        display: block;
+        position: relative;
+      }
+
+      :fullscreen .video-frame {
+        position: absolute;
+        inset: 0;
+        width: 100vw !important;
+        height: 100vh !important;
+        max-height: 100vh;
+        aspect-ratio: auto;
+        border-radius: 0;
+        background: #000;
+      }
+
+      :fullscreen .video-frame video {
+        object-fit: contain;
+      }
+
+      :fullscreen .video-controls {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 4;
+        background: transparent;
+        border-top: 0;
+        transition: opacity 0.25s ease;
+      }
+
+      :fullscreen.controls-hidden .video-controls {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      :fullscreen.controls-hidden {
+        cursor: none;
+      }
+
+      @media (max-width: 900px) {
+        .portfolio-shell {
+          width: min(96%, 92%);
+        }
+      }
+    </style>
+  </head>
+  <body class="player-page">
+    <main class="portfolio-shell">
+      <header class="portfolio-header"></header>
+
+      <section class="player-layout">
+        <div class="video-stage">
+          <div class="video-frame">
+            <video
+              id="portfolio-player"
+              preload="metadata"
+              playsinline
+              poster="https://firebasestorage.googleapis.com/v0/b/jb3d-a98fd.firebasestorage.app/o/demofiles%2Fpreviews%2F1777632137180_%EC%A7%84%EB%B6%80%EC%A4%91%20%EB%A0%8C%EB%8D%94.png?alt=media&token=e2bfb1f5-894b-46b8-9e42-61f63f20b1e9"
+            >
+              <source src="https://res.cloudinary.com/dfrh0djn3/video/upload/v1777538955/%ED%99%88%ED%8E%98%EC%9D%B4%EC%A7%80%EC%9A%A9_1%EC%B0%A8_wgtt9q.mp4" type="video/mp4" />
+            </video>
+            <div class="video-overlay" aria-hidden="true"></div>
+          </div>
+
+          <div class="video-controls">
+            <button class="icon-btn" id="play-toggle" type="button" aria-label="재생/일시정지">▶</button>
+            <div class="volume-wrap">
+              <button class="icon-btn" id="volume-toggle" type="button" aria-label="음소거">
+                <svg class="volume-symbol" viewBox="0 0 24 24" aria-hidden="true">
+                  <path class="volume-body" d="M4 10v4h4l5 4V6l-5 4H4z" />
+                  <path class="volume-wave volume-wave-inner" d="M16 9.5a4 4 0 0 1 0 5" />
+                  <path class="volume-wave volume-wave-outer" d="M19 7a7 7 0 0 1 0 10" />
+                  <path class="volume-muted" d="m4 4 16 16" />
+                </svg>
+              </button>
+              <input id="volume-bar" type="range" min="0" max="100" value="100" aria-label="볼륨" />
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-rail" aria-hidden="true"><div class="progress-fill"></div></div>
+              <input id="progress-bar" type="range" min="0" max="1000" value="0" aria-label="재생 위치" />
+            </div>
+            <span class="time-label" id="time-label">0:00 / 0:00</span>
+            <button class="icon-btn" id="fullscreen-toggle" type="button" aria-label="전체화면">⤢</button>
+          </div>
+
+          <div class="video-info">
+            <h2 id="video-title">3D 캐릭터 컨셉 영상</h2>
+            <p id="video-description">
+              메타버스와 3D 콘텐츠 제작 과정을 담은 포트폴리오 영상입니다. 모델링, 환경 구성,
+              그리고 협업 과정을 한눈에 보여줍니다.
+            </p>
+
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="player.js"></script>
+  </body>
+</html>

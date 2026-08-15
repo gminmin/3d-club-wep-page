@@ -362,8 +362,10 @@
               item.className = 'work-item reveal';
               if (index > 0) item.classList.add(`reveal-delay-${Math.min(index, 3)}`);
               item.dataset.category = w.category;
+              item.style.cursor = w.link ? 'pointer' : 'default';
 
-              item.innerHTML = `
+              const safeLink = w.link ? w.link.trim() : '';
+              const cardHtml = `
               <div class="work-thumb" style="background: url('${w.imageUrl}') center/cover no-repeat; background-color: #04ADC0;">
                 <span class="work-thumb-label" style="display:${w.imageUrl ? 'none' : 'block'}">${w.category.substring(0, 2)}</span>
               </div>
@@ -377,6 +379,20 @@
                 <div class="tags"><span class="badge">${w.category}</span></div>
               </div>
             `;
+
+              item.innerHTML = cardHtml;
+
+              if (safeLink) {
+                item.addEventListener('click', () => {
+                  const normalizedLink = safeLink.startsWith('/player.html')
+                    ? safeLink
+                    : safeLink.startsWith('/player-')
+                      ? `/player.html?video=${encodeURIComponent(safeLink.replace(/^\/player-/, ''))}`
+                      : safeLink;
+                  window.location.href = normalizedLink;
+                });
+              }
+
               grid.appendChild(item);
             });
 
