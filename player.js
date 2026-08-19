@@ -8,7 +8,7 @@ const fullscreenToggle = document.getElementById('fullscreen-toggle');
 const progressBar = document.getElementById('progress-bar');
 const progressWrap = document.querySelector('.progress-wrap');
 const timeLabel = document.getElementById('time-label');
-const videoFrame = document.querySelector('.video-frame');
+const videoViewport = document.querySelector('.video-viewport');
 const videoStage = document.querySelector('.video-stage');
 const videoControls = document.querySelector('.video-controls');
 const videoInfo = document.querySelector('.video-info');
@@ -71,8 +71,8 @@ function fitVideoToAvailableSpace() {
     width = height * aspectRatio;
   }
 
-  videoFrame.style.width = `${Math.floor(width)}px`;
-  videoFrame.style.height = `${Math.floor(height)}px`;
+  videoViewport.style.width = `${Math.floor(width)}px`;
+  videoViewport.style.height = `${Math.floor(height)}px`;
 }
 
 function getUrlSlug() {
@@ -131,6 +131,66 @@ function updateVolumeIcon() {
 function toggleMute() {
   videoPlayer.muted = !videoPlayer.muted;
   updateVolumeIcon();
+}
+
+function adjustVolume(deltaPercent) {
+  const next = Math.min(100, Math.max(0, Number(volumeBar.value) + deltaPercent));
+  volumeBar.value = String(next);
+  updateVolume();
+}
+
+function seekBy(seconds) {
+  const duration = videoPlayer.duration || 0;
+  if (!duration) return;
+
+  videoPlayer.currentTime = Math.min(duration, Math.max(0, videoPlayer.currentTime + seconds));
+  updateTimeUI();
+}
+
+function isShortcutBlockedTarget(target) {
+  if (!(target instanceof Element)) return false;
+  return Boolean(target.closest('input, textarea, select, button, [contenteditable="true"]'));
+}
+
+function handlePlayerKeydown(event) {
+  switch (event.code) {
+    case 'Space':
+      if (isShortcutBlockedTarget(event.target)) return;
+      event.preventDefault();
+      togglePlay();
+      break;
+    case 'KeyM':
+      event.preventDefault();
+      toggleMute();
+      break;
+    case 'ArrowUp':
+      event.preventDefault();
+      adjustVolume(5);
+      break;
+    case 'ArrowDown':
+      event.preventDefault();
+      adjustVolume(-5);
+      break;
+    case 'ArrowLeft':
+      event.preventDefault();
+      seekBy(-5);
+      break;
+    case 'ArrowRight':
+      event.preventDefault();
+      seekBy(5);
+      break;
+    case 'KeyF':
+      event.preventDefault();
+      toggleFullscreen();
+      break;
+    default:
+      break;
+  }
+}
+
+function handleVideoAreaClick(event) {
+  if (event.target.closest('.video-controls, .video-info, input, button')) return;
+  togglePlay();
 }
 
 function toggleFullscreen() {
@@ -208,6 +268,8 @@ playToggle.addEventListener('click', togglePlay);
 volumeBar.addEventListener('input', updateVolume);
 volumeToggle.addEventListener('click', toggleMute);
 fullscreenToggle.addEventListener('click', toggleFullscreen);
+videoStage.addEventListener('click', handleVideoAreaClick);
+document.addEventListener('keydown', handlePlayerKeydown);
 window.addEventListener('resize', fitVideoToAvailableSpace);
 document.addEventListener('fullscreenchange', handleFullscreenChange);
 window.addEventListener('blur', hideFullscreenControls);
@@ -222,6 +284,7 @@ document.addEventListener('mouseout', (event) => {
 if ('ResizeObserver' in window) {
   const layoutObserver = new ResizeObserver(fitVideoToAvailableSpace);
   layoutObserver.observe(videoStage);
+  layoutObserver.observe(videoViewport);
   layoutObserver.observe(videoControls);
   layoutObserver.observe(videoInfo);
 }

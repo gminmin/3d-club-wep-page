@@ -50,10 +50,49 @@
         display: none;
       }
 
+      .player-page .navbar {
+        height: 64px;
+        padding: 0 24px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 8px 24px rgba(12, 13, 13, 0.08);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+
+      .player-page .nav-links {
+        gap: 0;
+      }
+
+      .player-page .nav-links a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 40px;
+        padding: 0 16px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 999px;
+        background: #ffffff;
+        color: var(--text-strong);
+        font-size: 0.9rem;
+        font-weight: 700;
+      }
+
+      .player-page .nav-links a::after {
+        display: none;
+      }
+
+      .player-page .nav-links a:hover,
+      .player-page .nav-links a:focus-visible {
+        background: var(--teal-strong);
+        border-color: var(--teal-strong);
+        color: #ffffff;
+        outline: none;
+      }
+
       .player-layout {
         display: flex;
         flex-direction: column;
-        height: 100vh;
+        height: calc(100vh - 64px);
+        margin-top: 64px;
         width: 100%;
       }
 
@@ -70,25 +109,35 @@
         grid-template-rows: minmax(0, 1fr) auto;
         flex: 1;
         min-height: 0;
+        cursor: pointer;
+      }
+
+      .video-viewport {
+        /* Sized by JavaScript to each video's intrinsic ratio. */
+        position: relative;
+        justify-self: center;
+        align-self: end;
+        max-width: 100%;
+        min-height: 0;
+        grid-row: 1;
+        grid-column: 1;
+        isolation: isolate;
+      }
+
+      @media (orientation: portrait) {
+        .video-viewport {
+          align-self: center;
+        }
       }
 
       .video-frame {
         position: relative;
         width: 100%;
-        max-width: 100%;
         height: 100%;
-        /* JavaScript sizes this box to each video's intrinsic ratio. */
-        /* Put any spare space above the video, never between it and the UI. */
-        align-self: end;
-        justify-self: center;
-        min-height: 0;
         background: #000;
         overflow: hidden;
         display: grid;
         place-items: center;
-        isolation: isolate;
-        grid-row: 1;
-        grid-column: 1;
       }
 
       .video-frame video {
@@ -112,8 +161,8 @@
 
       .video-controls {
         display: flex;
-        align-items: center;
-        gap: 12px;
+        flex-direction: column;
+        gap: 8px;
         width: 100%;
         min-height: 72px;
         margin: 0 auto;
@@ -127,6 +176,14 @@
         grid-row: 1;
         grid-column: 1;
         align-self: end;
+        cursor: default;
+      }
+
+      .controls-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
       }
 
       .icon-btn {
@@ -152,17 +209,12 @@
       }
 
       .progress-wrap {
-        flex: 1;
+        width: 100%;
         display: flex;
         align-items: center;
         position: relative;
+        top: 4px;
         --progress-percent: 0%;
-        transition: margin-left 0.2s ease;
-      }
-
-      .volume-wrap:hover ~ .progress-wrap,
-      .volume-wrap:focus-within ~ .progress-wrap {
-        margin-left: 90px;
       }
 
       .progress-rail {
@@ -370,6 +422,7 @@
 
       .time-label {
         min-width: 104px;
+        margin-left: auto;
         text-align: right;
         font-size: 0.8rem;
         color: #ffffff;
@@ -386,6 +439,7 @@
         z-index: 3;
         grid-row: 2;
         grid-column: 1;
+        cursor: default;
       }
 
       .video-info h2 {
@@ -428,12 +482,14 @@
       }
 
       :fullscreen .portfolio-header,
-      :fullscreen .video-info {
+      :fullscreen .video-info,
+      :fullscreen .navbar {
         display: none;
       }
 
       :fullscreen .player-layout {
         height: 100vh;
+        margin-top: 0;
         display: flex;
         align-items: stretch;
       }
@@ -449,13 +505,17 @@
         position: relative;
       }
 
-      :fullscreen .video-frame {
+      :fullscreen .video-viewport {
         position: absolute;
         inset: 0;
         width: 100vw !important;
         height: 100vh !important;
         max-height: 100vh;
-        aspect-ratio: auto;
+      }
+
+      :fullscreen .video-frame {
+        width: 100%;
+        height: 100%;
         border-radius: 0;
         background: #000;
       }
@@ -485,6 +545,14 @@
       }
 
       @media (max-width: 900px) {
+        .player-page .navbar {
+          padding: 0 16px;
+        }
+
+        .player-page .nav-logo-text {
+          font-size: 0.95rem;
+        }
+
         .portfolio-shell {
           width: min(96%, 92%);
         }
@@ -492,42 +560,60 @@
     </style>
   </head>
   <body class="player-page">
+
+
+    <!-- 내비게이션 -->
+    <nav class="navbar" id="navbar">
+      <a href="index.html" class="nav-logo">
+        <img src="Color_Logo.png" alt="진부중 3D 동아리 로고" onerror="this.style.display='none'" />
+        <span class="nav-logo-text">진부중학교 3D 동아리</span>
+      </a>
+      <div class="nav-links">
+        <a href="works.html" aria-label="작품 목록으로 돌아가기">← 작품 목록</a>
+      </div>
+    </nav>
+
     <main class="portfolio-shell">
       <header class="portfolio-header"></header>
 
       <section class="player-layout">
         <div class="video-stage">
-          <div class="video-frame">
-            <video
-              id="portfolio-player"
-              preload="metadata"
-              playsinline
-              poster="https://firebasestorage.googleapis.com/v0/b/jb3d-a98fd.firebasestorage.app/o/demofiles%2Fpreviews%2F1777632137180_%EC%A7%84%EB%B6%80%EC%A4%91%20%EB%A0%8C%EB%8D%94.png?alt=media&token=e2bfb1f5-894b-46b8-9e42-61f63f20b1e9"
-            >
-              <source src="https://res.cloudinary.com/dfrh0djn3/video/upload/v1777538955/%ED%99%88%ED%8E%98%EC%9D%B4%EC%A7%80%EC%9A%A9_1%EC%B0%A8_wgtt9q.mp4" type="video/mp4" />
-            </video>
-            <div class="video-overlay" aria-hidden="true"></div>
+          <div class="video-viewport">
+            <div class="video-frame">
+              <video
+                id="portfolio-player"
+                preload="metadata"
+                playsinline
+                poster="https://firebasestorage.googleapis.com/v0/b/jb3d-a98fd.firebasestorage.app/o/demofiles%2Fpreviews%2F1777632137180_%EC%A7%84%EB%B6%80%EC%A4%91%20%EB%A0%8C%EB%8D%94.png?alt=media&token=e2bfb1f5-894b-46b8-9e42-61f63f20b1e9"
+              >
+                <source src="https://res.cloudinary.com/dfrh0djn3/video/upload/v1777538955/%ED%99%88%ED%8E%98%EC%9D%B4%EC%A7%80%EC%9A%A9_1%EC%B0%A8_wgtt9q.mp4" type="video/mp4" />
+              </video>
+              <div class="video-overlay" aria-hidden="true"></div>
+            </div>
           </div>
 
           <div class="video-controls">
-            <button class="icon-btn" id="play-toggle" type="button" aria-label="재생/일시정지">▶</button>
-            <div class="volume-wrap">
-              <button class="icon-btn" id="volume-toggle" type="button" aria-label="음소거">
-                <svg class="volume-symbol" viewBox="0 0 24 24" aria-hidden="true">
-                  <path class="volume-body" d="M4 10v4h4l5 4V6l-5 4H4z" />
-                  <path class="volume-wave volume-wave-inner" d="M16 9.5a4 4 0 0 1 0 5" />
-                  <path class="volume-wave volume-wave-outer" d="M19 7a7 7 0 0 1 0 10" />
-                  <path class="volume-muted" d="m4 4 16 16" />
-                </svg>
-              </button>
-              <input id="volume-bar" type="range" min="0" max="100" value="100" aria-label="볼륨" />
-            </div>
             <div class="progress-wrap">
               <div class="progress-rail" aria-hidden="true"><div class="progress-fill"></div></div>
               <input id="progress-bar" type="range" min="0" max="1000" value="0" aria-label="재생 위치" />
             </div>
-            <span class="time-label" id="time-label">0:00 / 0:00</span>
-            <button class="icon-btn" id="fullscreen-toggle" type="button" aria-label="전체화면">⤢</button>
+
+            <div class="controls-row">
+              <button class="icon-btn" id="play-toggle" type="button" aria-label="재생/일시정지">▶</button>
+              <div class="volume-wrap">
+                <button class="icon-btn" id="volume-toggle" type="button" aria-label="음소거">
+                  <svg class="volume-symbol" viewBox="0 0 24 24" aria-hidden="true">
+                    <path class="volume-body" d="M4 10v4h4l5 4V6l-5 4H4z" />
+                    <path class="volume-wave volume-wave-inner" d="M16 9.5a4 4 0 0 1 0 5" />
+                    <path class="volume-wave volume-wave-outer" d="M19 7a7 7 0 0 1 0 10" />
+                    <path class="volume-muted" d="m4 4 16 16" />
+                  </svg>
+                </button>
+                <input id="volume-bar" type="range" min="0" max="100" value="100" aria-label="볼륨" />
+              </div>
+              <span class="time-label" id="time-label">0:00 / 0:00</span>
+              <button class="icon-btn" id="fullscreen-toggle" type="button" aria-label="전체화면">⤢</button>
+            </div>
           </div>
 
           <div class="video-info">
