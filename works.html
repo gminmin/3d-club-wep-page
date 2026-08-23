@@ -197,50 +197,34 @@
 
       <div class="filter-bar reveal">
         <button class="filter-btn active" data-filter="all">전체</button>
-        <button class="filter-btn" data-filter="modeling">모델링</button>
-        <button class="filter-btn" data-filter="render">렌더링</button>
-        <button class="filter-btn" data-filter="animation">애니메이션</button>
+        <button class="filter-btn" data-filter="picture">사진</button>
+        <button class="filter-btn" data-filter="video">영상</button>
         <button class="filter-btn" data-filter="project">프로젝트</button>
       </div>
 
       <div class="works-grid" id="worksGrid">
-        <div class="work-item reveal" data-category="modeling">
-          <div class="work-thumb" style="background:linear-gradient(135deg,#04ADC0,#5D68A6);">
-            <span class="work-thumb-label">모델링</span>
-          </div>
-          <div class="work-overlay">
-            <div class="work-title">미래 도시 건물</div>
-            <div class="work-meta">3D 모델링 · 2025</div>
-          </div>
-          <div class="work-info">
-            <h3>미래 도시 건물</h3>
-            <p>블렌더로 제작한 SF 스타일 건물 모델</p>
-            <div class="tags"><span class="badge">모델링</span><span class="badge">Blender</span></div>
-          </div>
-        </div>
-
-        <div class="work-item reveal reveal-delay-1" data-category="render">
+        <div class="work-item reveal reveal-delay-1" data-category="picture">
           <div class="work-thumb" style="background:linear-gradient(135deg,#9C7BA6,#03D9D9);">
-            <span class="work-thumb-label">렌더링</span>
+            <span class="work-thumb-label">사진</span>
           </div>
           <div class="work-overlay">
             <div class="work-title">수면 위의 반영</div>
-            <div class="work-meta">렌더링 · 2025</div>
+            <div class="work-meta">사진 · 2025</div>
           </div>
           <div class="work-info">
             <h3>수면 위의 반영</h3>
             <p>Cycles 렌더러로 제작한 사실적인 수면 반영 장면</p>
-            <div class="tags"><span class="badge">렌더링</span><span class="badge">Cycles</span></div>
+            <div class="tags"><span class="badge">사진</span><span class="badge">Cycles</span></div>
           </div>
         </div>
 
-        <div class="work-item reveal reveal-delay-2" data-category="animation">
+        <div class="work-item reveal reveal-delay-2" data-category="video">
           <div class="work-thumb" style="background:linear-gradient(135deg,#56BF7C,#04ADC0);">
-            <span class="work-thumb-label">애니</span>
+            <span class="work-thumb-label">영상</span>
           </div>
           <div class="work-overlay">
             <div class="work-title">로봇 워킹 사이클</div>
-            <div class="work-meta">애니메이션 · 2025</div>
+            <div class="work-meta">영상 · 2025</div>
           </div>
           <div class="work-info">
             <h3>로봇 워킹 사이클</h3>
@@ -263,38 +247,9 @@
             <div class="tags"><span class="badge">프로젝트</span><span class="badge">팀작업</span></div>
           </div>
         </div>
+    </div>
 
-        <div class="work-item reveal reveal-delay-1" data-category="modeling">
-          <div class="work-thumb" style="background:linear-gradient(135deg,#03D9D9,#9C7BA6);">
-            <span class="work-thumb-label">스컬팅</span>
-          </div>
-          <div class="work-overlay">
-            <div class="work-title">스컬팅 – 얼굴 습작</div>
-            <div class="work-meta">스컬팅 · 2026</div>
-          </div>
-          <div class="work-info">
-            <h3>스컬팅 – 얼굴 습작</h3>
-            <p>블렌더 스컬팅 모드로 연습한 얼굴 조각</p>
-            <div class="tags"><span class="badge">모델링</span><span class="badge">스컬팅</span></div>
-          </div>
-        </div>
-
-        <div class="work-item reveal reveal-delay-2" data-category="render">
-          <div class="work-thumb" style="background:linear-gradient(135deg,#04ADC0,#56BF7C);">
-            <span class="work-thumb-label">렌더링</span>
-          </div>
-          <div class="work-overlay">
-            <div class="work-title">자연 환경 렌더링</div>
-            <div class="work-meta">렌더링 · 2026</div>
-          </div>
-          <div class="work-info">
-            <h3>자연 환경 렌더링</h3>
-            <p>숲 속 아침 풍경을 사실적으로 표현한 렌더링</p>
-            <div class="tags"><span class="badge">렌더링</span><span class="badge">자연</span></div>
-          </div>
-        </div>
-      </div>
-
+    <div>
       <div class="reveal"
         style="text-align:center; margin-top:3rem; padding:2rem; background:rgba(4,173,192,0.04); border:2px dashed rgba(4,173,192,0.4); border-radius:var(--radius-md);">
         <p style="color:var(--c-text-sub); font-size:0.9rem; margin-bottom:1rem;">
@@ -343,6 +298,11 @@
           const ds = window.dataService;
           const grid = document.getElementById('worksGrid');
           const filterBtns = document.querySelectorAll('.filter-btn');
+          const categoryLabels = {
+            video: '영상',
+            picture: '사진',
+            project: '프로젝트'
+          };
 
           grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding: 3rem;">작품을 불러오는 중...</p>';
 
@@ -365,18 +325,19 @@
               item.style.cursor = w.link ? 'pointer' : 'default';
 
               const safeLink = w.link ? w.link.trim() : '';
+              const categoryLabel = categoryLabels[w.category] || w.category;
               const cardHtml = `
               <div class="work-thumb" style="background: url('${w.imageUrl}') center/cover no-repeat; background-color: #04ADC0;">
-                <span class="work-thumb-label" style="display:${w.imageUrl ? 'none' : 'block'}">${w.category.substring(0, 2)}</span>
+                <span class="work-thumb-label" style="display:${w.imageUrl ? 'none' : 'block'}">${categoryLabel}</span>
               </div>
               <div class="work-overlay">
                 <div class="work-title">${w.title}</div>
-                <div class="work-meta">${w.category} · ${new Date().getFullYear()}</div>
+                <div class="work-meta">${categoryLabel} · ${new Date().getFullYear()}</div>
               </div>
               <div class="work-info">
                 <h3>${w.title}</h3>
                 <p>${marked.parse(w.description || '')}</p>
-                <div class="tags"><span class="badge">${w.category}</span></div>
+                <div class="tags"><span class="badge">${categoryLabel}</span></div>
               </div>
             `;
 

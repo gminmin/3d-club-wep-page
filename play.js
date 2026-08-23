@@ -24,10 +24,10 @@ const knownVideos = {
     description: '메타버스와 3D 콘텐츠 제작 과정을 담은 포트폴리오 영상입니다. 모델링, 환경 구성, 그리고 협업 과정을 한눈에 보여줍니다.',
     src: `${baseVideoUrl}/v1777538955/%ED%99%88%ED%8E%98%EC%9D%B4%EC%A7%80%EC%9A%A9_1%EC%B0%A8_wgtt9q.mp4`
   },
-  'campaign-promo': {
-    title: '캠페인 프로모션 영상',
-    description: '학교 행사와 동아리 활동을 소개하는 프로모션 영상으로, 빠른 컷 편집과 타이포그래피를 활용해 메시지를 효과적으로 전달합니다.',
-    src: 'https://res.cloudinary.com/demo/video/upload/cld-sample-video.mp4'
+  '36exp': {
+    title: '36exp. 단편 애니메이션',
+    description: 'Demo Project.',
+    src: `${baseVideoUrl}/v1777538955/11%EC%B0%A8%EB%B3%B8_j532io.mp4`
   },
   showcase: {
     title: '공동 프로젝트 쇼케이스',
