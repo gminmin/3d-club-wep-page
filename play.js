@@ -18,21 +18,46 @@ let controlsHideTimer;
 const cloudName = 'dfrh0djn3';
 const baseVideoUrl = `https://res.cloudinary.com/${cloudName}/video/upload`;
 
+function createPoster(label, fromColor, toColor) {
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675">
+      <defs>
+        <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="${fromColor}" />
+          <stop offset="100%" stop-color="${toColor}" />
+        </linearGradient>
+      </defs>
+      <rect width="1200" height="675" fill="url(#bg)"/>
+      <circle cx="1040" cy="140" r="120" fill="rgba(255,255,255,0.12)"/>
+      <circle cx="930" cy="520" r="190" fill="rgba(255,255,255,0.08)"/>
+      <rect x="80" y="420" width="350" height="8" rx="4" fill="rgba(255,255,255,0.55)"/>
+      <rect x="80" y="450" width="235" height="8" rx="4" fill="rgba(255,255,255,0.30)"/>
+      <text x="80" y="320" fill="white" font-family="Noto Sans KR, Arial, sans-serif" font-size="54" font-weight="700">JB3D</text>
+      <text x="80" y="385" fill="white" font-family="Noto Sans KR, Arial, sans-serif" font-size="74" font-weight="900">${label}</text>
+    </svg>
+  `;
+
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
 const knownVideos = {
   'homepage-hongbo': {
     title: '3D 캐릭터 컨셉 영상',
     description: '메타버스와 3D 콘텐츠 제작 과정을 담은 포트폴리오 영상입니다. 모델링, 환경 구성, 그리고 협업 과정을 한눈에 보여줍니다.',
-    src: `${baseVideoUrl}/v1777538955/%ED%99%88%ED%8E%98%EC%9D%B4%EC%A7%80%EC%9A%A9_1%EC%B0%A8_wgtt9q.mp4`
+    src: `${baseVideoUrl}/v1777538955/%ED%99%88%ED%8E%98%EC%9D%B4%EC%A7%80%EC%9A%A9_1%EC%B0%A8_wgtt9q.mp4`,
+    poster: 'https://firebasestorage.googleapis.com/v0/b/jb3d-a98fd.firebasestorage.app/o/works%2Fplayer_cover.png?alt=media&token=5a26d867-0e4d-42be-96b3-d50af0f6eb5c'
   },
   '36exp': {
     title: '36exp. 단편 애니메이션',
     description: 'Demo Project.',
-    src: `${baseVideoUrl}/v1777538955/11%EC%B0%A8%EB%B3%B8_j532io.mp4`
+    src: `${baseVideoUrl}/v1777538955/11%EC%B0%A8%EB%B3%B8_j532io.mp4`,
+    poster: 'https://firebasestorage.googleapis.com/v0/b/jb3d-a98fd.firebasestorage.app/o/works%2Fplayer_cover.png?alt=media&token=5a26d867-0e4d-42be-96b3-d50af0f6eb5c'
   },
   showcase: {
     title: '공동 프로젝트 쇼케이스',
     description: '학생들이 협업으로 만든 결과물을 소개하는 쇼케이스 영상입니다. 작업 과정, 완성본, 팀 소개를 순서대로 담고 있습니다.',
-    src: 'https://res.cloudinary.com/demo/video/upload/sample_video.mp4'
+    src: 'https://res.cloudinary.com/demo/video/upload/sample_video.mp4',
+    poster: 'https://firebasestorage.googleapis.com/v0/b/jb3d-a98fd.firebasestorage.app/o/works%2Fplayer_cover.png?alt=media&token=5a26d867-0e4d-42be-96b3-d50af0f6eb5c'
   }
 };
 
@@ -97,9 +122,12 @@ function setVideoFromSlug(slug) {
 
   titleNode.textContent = selected.title;
   descriptionNode.textContent = selected.description;
+  videoPlayer.poster = selected.poster || '';
+  videoPlayer.setAttribute('poster', selected.poster || '');
   videoPlayer.src = selected.src;
   videoPlayer.load();
-  videoPlayer.play();
+  videoPlayer.pause();
+  playToggle.textContent = '▶';
 
   updateUrl(safeSlug);
 }
