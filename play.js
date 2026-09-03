@@ -50,7 +50,7 @@ const knownVideos = {
   '36exp': {
     title: '36exp. 단편 애니메이션',
     description: 'Demo Project.',
-    src: `${baseVideoUrl}/v1777538955/11%EC%B0%A8%EB%B3%B8_j532io.mp4`,
+    src: `${baseVideoUrl}/v1788479001/s1_3%EC%B0%A8_klxyj2.mp4`,
     poster: 'https://firebasestorage.googleapis.com/v0/b/jb3d-a98fd.firebasestorage.app/o/works%2Fplayer_cover.png?alt=media&token=5a26d867-0e4d-42be-96b3-d50af0f6eb5c'
   },
   showcase: {
