@@ -1,633 +1,908 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>3D Club Portfolio Player</title>
-    <link rel="icon" type="image/png" href="web_icon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="style.css" />
-    <style>
-      :root {
-        --player-bg: #ffffff;
-        --player-surface: #f4fbfb;
-        --panel-bg: #ffffff;
-        --panel-border: rgba(4, 173, 192, 0.15);
-        --pill-bg: rgba(4, 173, 192, 0.08);
-        --teal-strong: #04adc0;
-        --teal-soft: #dff7f8;
-        --text-strong: #0d1b1f;
-        --text-muted: #546b72;
-        --shadow-soft: 0 24px 56px rgba(4, 173, 192, 0.12);
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Club Portfolio Player</title>
+  <link rel="icon" type="image/png" href="web_icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    :root {
+      --player-bg: #ffffff;
+      --player-surface: #f4fbfb;
+      --panel-bg: #ffffff;
+      --panel-border: rgba(4, 173, 192, 0.15);
+      --pill-bg: rgba(4, 173, 192, 0.08);
+      --teal-strong: #04adc0;
+      --teal-soft: #dff7f8;
+      --text-strong: #0d1b1f;
+      --text-muted: #546b72;
+      --shadow-soft: 0 24px 56px rgba(4, 173, 192, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body.player-page {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: linear-gradient(180deg, #ffffff 0%, #f5fbfb 100%);
+    }
+
+    .portfolio-shell {
+      width: 100%;
+      height: 100vh;
+      margin: 0 auto;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      background: #ffffff;
+    }
+
+    .portfolio-header {
+      display: none;
+    }
+
+    .player-page .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10002;
+      height: 64px;
+      padding: 0 24px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 8px 24px rgba(12, 13, 13, 0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .player-page .nav-links {
+      gap: 0;
+    }
+
+    .player-page .nav-links a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 0 16px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--text-strong);
+      font-size: 0.9rem;
+      font-weight: 700;
+      box-shadow: none;
+    }
+
+    .player-page .nav-links a::after {
+      display: none;
+    }
+
+    .player-page .nav-links a:hover,
+    .player-page .nav-links a:focus-visible {
+      background: var(--teal-strong);
+      border-color: var(--teal-strong);
+      color: #ffffff;
+      outline: none;
+    }
+
+    /* 추천 영상 버튼: 비디오 레이어 우측 상단 절대 위치 */
+    .recommend-open-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 4;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.45);
+      color: #ffffff;
+      cursor: pointer;
+      box-shadow: none;
+      filter: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      transition: background 0.2s ease, border-color 0.2s ease, opacity 0.25s ease;
+    }
+
+    .recommend-open-btn:hover,
+    .recommend-open-btn:focus-visible {
+      background: var(--teal-strong);
+      border-color: var(--teal-strong);
+      outline: none;
+    }
+
+    .recommend-open-btn svg {
+      display: block;
+      width: 20px;
+      height: 20px;
+    }
+
+    /* 전체화면에서 컨트롤 숨김 시 버튼도 함께 숨김 */
+    :fullscreen.controls-hidden .recommend-open-btn {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* 화면 하단 추천 영상 트레이 */
+    .recommend-bottom-overlay {
+      position: fixed;
+      top: 64px;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .recommend-bottom-overlay.is-active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .recommend-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      transition: opacity 0.25s ease;
+    }
+
+    .recommend-bottom-tray {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      background: #ffffff;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.35);
+      padding: 16px 24px 24px;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .recommend-bottom-overlay.is-active .recommend-bottom-tray {
+      transform: translateY(0);
+    }
+
+    .tray-close-btn {
+      position: absolute;
+      right: 24px;
+      top: -48px;
+      z-index: 3;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1.5px solid var(--teal-strong);
+      background: var(--teal-strong);
+      color: #ffffff;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .tray-close-btn:hover {
+      background: #ffffff;
+      color: var(--teal-strong);
+      border-color: #ffffff;
+    }
+
+    .tray-cards-wrap {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 6px;
+      max-width: 1400px;
+      margin: 0 auto;
+      scroll-behavior: smooth;
+    }
+
+    .tray-cards-wrap::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .tray-cards-wrap::-webkit-scrollbar-thumb {
+      background: rgba(4, 173, 192, 0.4);
+      border-radius: 999px;
+    }
+
+    .tray-card {
+      flex: 0 0 200px;
+      width: 200px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease;
+    }
+
+    .tray-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .tray-thumb-box {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #111827;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .tray-card:hover .tray-thumb-box {
+      border-color: var(--teal-strong);
+      box-shadow: 0 6px 18px rgba(4, 173, 192, 0.28);
+    }
+
+    .tray-card.is-current .tray-thumb-box {
+      border-color: var(--teal-strong);
+      box-shadow: 0 0 0 2.5px var(--teal-strong);
+    }
+
+    .tray-thumb-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.25s ease;
+    }
+
+    .tray-card:hover .tray-thumb-box img {
+      transform: scale(1.04);
+    }
+
+    .tray-duration {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      background: rgba(0, 0, 0, 0.85);
+      color: #ffffff;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.02em;
+    }
+
+    .tray-current-badge {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      background: var(--teal-strong);
+      color: #ffffff;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+
+    .tray-card-title {
+      margin-top: 8px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: #1f2937;
+      line-height: 1.35;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.2s ease;
+    }
+
+    .tray-card:hover .tray-card-title {
+      color: var(--teal-strong);
+    }
+
+    .tray-empty-state {
+      width: 100%;
+      padding: 24px 0 16px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    /* 전체화면 모드 대응 */
+    :fullscreen .recommend-bottom-overlay {
+      top: 0;
+      z-index: 999999;
+    }
+
+
+    .player-layout {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 64px);
+      margin-top: 64px;
+      width: 100%;
+    }
+
+    .video-stage {
+      width: 100%;
+      max-width: 100%;
+      background: #000;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      overflow: hidden;
+      /* Only the information panel reserves space; controls overlay the video. */
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      flex: 1;
+      min-height: 0;
+      cursor: pointer;
+      position: relative;
+      /* 추천 버튼 절대 위치 기준 */
+    }
+
+    .video-viewport {
+      /* Sized by JavaScript to each video's intrinsic ratio. */
+      position: relative;
+      justify-self: center;
+      align-self: end;
+      max-width: 100%;
+      min-height: 0;
+      grid-row: 1;
+      grid-column: 1;
+      isolation: isolate;
+    }
+
+    @media (orientation: portrait) {
+      .video-viewport {
+        align-self: center;
+      }
+    }
+
+    .video-frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+
+    .video-frame video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      object-fit: contain;
+      object-position: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .video-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(4, 173, 192, 0.06), rgba(15, 23, 32, 0.22));
+      z-index: 2;
+    }
+
+    .video-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      min-height: 72px;
+      margin: 0 auto;
+      padding: 12px 18px 14px;
+      background: transparent;
+      border: 0;
+      outline: 0;
+      box-shadow: none;
+      position: relative;
+      z-index: 3;
+      grid-row: 1;
+      grid-column: 1;
+      align-self: end;
+      cursor: default;
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: transparent;
+      color: #ffffff;
+      border: 0;
+      font-size: 1rem;
+      box-shadow: none;
+      transition: background 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      background: rgba(15, 23, 32, 0.72);
+    }
+
+    .icon-btn svg {
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+    }
+
+    .progress-wrap {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      position: relative;
+      top: 4px;
+      --progress-percent: 0%;
+    }
+
+    .progress-rail {
+      position: absolute;
+      top: 50%;
+      right: 0;
+      left: 0;
+      height: 4px;
+      transform: translateY(-50%);
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.58);
+      pointer-events: none;
+      z-index: 1;
+      transition: height 0.18s ease;
+    }
+
+    .progress-fill {
+      position: absolute;
+      inset: 0;
+      background: var(--grad-main);
+      clip-path: inset(0 calc(100% - var(--progress-percent)) 0 0);
+      transition: none;
+    }
+
+    .progress-wrap:hover .progress-rail {
+      height: 8px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 20px;
+      margin: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 4px;
+      border-radius: 999px;
+      background: transparent;
+      transition: height 0.18s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      width: 12px;
+      height: 12px;
+      margin-top: -4px;
+      border: 0;
+      border-radius: 50%;
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--teal-strong);
+      transition: width 0.18s ease, height 0.18s ease, margin-top 0.18s ease;
+    }
+
+    .progress-wrap:hover input[type="range"]::-webkit-slider-runnable-track {
+      height: 8px;
+    }
+
+    .progress-wrap:hover input[type="range"]::-webkit-slider-thumb {
+      width: 16px;
+      height: 16px;
+      margin-top: -4px;
+    }
+
+    input[type="range"]::-moz-range-track {
+      height: 4px;
+      border-radius: 999px;
+      background: transparent;
+      transition: height 0.18s ease;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border: 0;
+      border-radius: 50%;
+      background: var(--teal-strong);
+    }
+
+    .progress-wrap:hover input[type="range"]::-moz-range-track {
+      height: 8px;
+    }
+
+    .progress-wrap:hover input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+    }
+
+    input[type="range"]::-moz-range-progress {
+      background: transparent;
+    }
+
+    .volume-wrap {
+      display: flex;
+      align-items: center;
+      position: relative;
+      flex: 0 0 40px;
+      width: 40px;
+      overflow: visible;
+      z-index: 3;
+    }
+
+    .volume-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 40px;
+      width: 8px;
+      height: 40px;
+    }
+
+    .volume-wrap input[type="range"] {
+      position: absolute;
+      top: 50%;
+      left: 48px;
+      width: 0;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-50%);
+      transition: width 0.2s ease, opacity 0.15s ease;
+    }
+
+    .volume-wrap:hover input[type="range"],
+    .volume-wrap:focus-within input[type="range"] {
+      width: 82px;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .volume-wrap input[type="range"]::-webkit-slider-runnable-track {
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(to right,
+          #ffffff 0 var(--volume-percent, 100%),
+          rgba(255, 255, 255, 0.58) var(--volume-percent, 100%) 100%);
+    }
+
+    .volume-wrap input[type="range"]::-webkit-slider-thumb {
+      width: 12px;
+      height: 12px;
+      margin-top: -4px;
+      border: 0;
+      border-radius: 50%;
+      background: #ffffff;
+    }
+
+    .volume-wrap input[type="range"]::-moz-range-track {
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(to right,
+          #ffffff 0 var(--volume-percent, 100%),
+          rgba(255, 255, 255, 0.58) var(--volume-percent, 100%) 100%);
+    }
+
+    .volume-wrap input[type="range"]::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border: 0;
+      border-radius: 50%;
+      background: #ffffff;
+    }
+
+    .volume-symbol {
+      fill: none;
+      stroke: currentColor;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 2;
+    }
+
+    #volume-toggle .volume-symbol {
+      width: 23px;
+      height: 23px;
+    }
+
+    .volume-symbol .volume-body {
+      fill: currentColor;
+    }
+
+    .volume-symbol .volume-muted {
+      display: none;
+    }
+
+    #volume-toggle.is-muted .volume-wave {
+      display: none;
+    }
+
+    #volume-toggle.is-low-volume .volume-wave-outer {
+      display: none;
+    }
+
+    #volume-toggle.is-muted .volume-muted {
+      display: block;
+    }
+
+    .time-label {
+      min-width: 104px;
+      margin-left: auto;
+      text-align: right;
+      font-size: 0.8rem;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .video-info {
+      width: 100%;
+      margin: 0 auto;
+      padding: 14px 18px 24px;
+      background: #ffffff;
+      border-top: 1px solid rgba(4, 173, 192, 0.12);
+      position: relative;
+      z-index: 3;
+      grid-row: 2;
+      grid-column: 1;
+      cursor: default;
+    }
+
+    .video-info h2 {
+      margin: 0 0 6px;
+      font-size: clamp(1.2rem, 1.5vw, 1.6rem);
+      color: var(--text-strong);
+    }
+
+    .video-info p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      max-width: 980px;
+      margin: 0;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.46rem 0.8rem;
+      border-radius: 999px;
+      background: var(--pill-bg);
+      border: 1px solid rgba(4, 173, 192, 0.16);
+      color: var(--teal-strong);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    :fullscreen .portfolio-shell {
+      width: 100vw;
+      max-width: none;
+      padding: 0;
+    }
+
+    :fullscreen .portfolio-header,
+    :fullscreen .video-info,
+    :fullscreen .navbar {
+      display: none;
+    }
+
+    :fullscreen .player-layout {
+      height: 100vh;
+      margin-top: 0;
+      display: flex;
+      align-items: stretch;
+    }
+
+    :fullscreen .video-stage {
+      width: 100vw;
+      height: 100vh;
+      max-width: none;
+      border-radius: 0;
+      box-shadow: none;
+      border: 0;
+      display: block;
+      position: relative;
+    }
+
+    :fullscreen .video-viewport {
+      position: absolute;
+      inset: 0;
+      width: 100vw !important;
+      height: 100vh !important;
+      max-height: 100vh;
+    }
+
+    :fullscreen .video-frame {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+      background: #000;
+    }
+
+    :fullscreen .video-frame video {
+      object-fit: contain;
+    }
+
+    :fullscreen .video-controls {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 4;
+      background: transparent;
+      border-top: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    :fullscreen.controls-hidden .video-controls {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    :fullscreen.controls-hidden {
+      cursor: none;
+    }
+
+    @media (max-width: 900px) {
+      .player-page .navbar {
+        padding: 0 16px;
       }
 
-      * { box-sizing: border-box; }
-
-      html, body.player-page {
-        margin: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        background: linear-gradient(180deg, #ffffff 0%, #f5fbfb 100%);
+      .player-page .nav-logo-text {
+        font-size: 0.95rem;
       }
 
       .portfolio-shell {
-        width: 100%;
-        height: 100vh;
-        margin: 0 auto;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        background: #ffffff;
+        width: min(96%, 92%);
       }
+    }
 
-      .portfolio-header {
+    @media (hover: none) and (pointer: coarse) {
+      .video-controls .volume-wrap {
         display: none;
       }
-
-      .player-page .navbar {
-        height: 64px;
-        padding: 0 24px;
-        background: rgba(255, 255, 255, 0.96);
-        box-shadow: 0 8px 24px rgba(12, 13, 13, 0.08);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-      }
-
-      .player-page .nav-links {
-        gap: 0;
-      }
-
-      .player-page .nav-links a {
-        display: inline-flex;
-        align-items: center;
-        min-height: 40px;
-        padding: 0 16px;
-        border: 1px solid rgba(255, 255, 255, 0.28);
-        border-radius: 999px;
-        background: #ffffff;
-        color: var(--text-strong);
-        font-size: 0.9rem;
-        font-weight: 700;
-      }
-
-      .player-page .nav-links a::after {
-        display: none;
-      }
-
-      .player-page .nav-links a:hover,
-      .player-page .nav-links a:focus-visible {
-        background: var(--teal-strong);
-        border-color: var(--teal-strong);
-        color: #ffffff;
-        outline: none;
-      }
-
-      .player-layout {
-        display: flex;
-        flex-direction: column;
-        height: calc(100vh - 64px);
-        margin-top: 64px;
-        width: 100%;
-      }
-
-      .video-stage {
-        width: 100%;
-        max-width: 100%;
-        background: #000;
-        border: 0;
-        border-radius: 0;
-        box-shadow: none;
-        overflow: hidden;
-        /* Only the information panel reserves space; controls overlay the video. */
-        display: grid;
-        grid-template-rows: minmax(0, 1fr) auto;
-        flex: 1;
-        min-height: 0;
-        cursor: pointer;
-      }
-
-      .video-viewport {
-        /* Sized by JavaScript to each video's intrinsic ratio. */
-        position: relative;
-        justify-self: center;
-        align-self: end;
-        max-width: 100%;
-        min-height: 0;
-        grid-row: 1;
-        grid-column: 1;
-        isolation: isolate;
-      }
-
-      @media (orientation: portrait) {
-        .video-viewport {
-          align-self: center;
-        }
-      }
-
-      .video-frame {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        background: #000;
-        overflow: hidden;
-        display: grid;
-        place-items: center;
-      }
-
-      .video-frame video {
-        display: block;
-        width: 100%;
-        height: 100%;
-        background: #000;
-        object-fit: contain;
-        object-position: center;
-        position: relative;
-        z-index: 1;
-      }
-
-      .video-overlay {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        background: linear-gradient(180deg, rgba(4,173,192,0.06), rgba(15,23,32,0.22));
-        z-index: 2;
-      }
-
-      .video-controls {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        width: 100%;
-        min-height: 72px;
-        margin: 0 auto;
-        padding: 12px 18px 14px;
-        background: transparent;
-        border: 0;
-        outline: 0;
-        box-shadow: none;
-        position: relative;
-        z-index: 3;
-        grid-row: 1;
-        grid-column: 1;
-        align-self: end;
-        cursor: default;
-      }
-
-      .controls-row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        width: 100%;
-      }
-
-      .icon-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: transparent;
-        color: #ffffff;
-        border: 0;
-        font-size: 1rem;
-        box-shadow: none;
-        transition: background 0.2s ease;
-      }
-
-      .icon-btn:hover {
-        background: rgba(15, 23, 32, 0.72);
-      }
-
-      .icon-btn svg {
-        width: 20px;
-        height: 20px;
-        vertical-align: middle;
-      }
-
-      .progress-wrap {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        position: relative;
-        top: 4px;
-        --progress-percent: 0%;
-      }
-
-      .progress-rail {
-        position: absolute;
-        top: 50%;
-        right: 0;
-        left: 0;
-        height: 4px;
-        transform: translateY(-50%);
-        overflow: hidden;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.58);
-        pointer-events: none;
-        z-index: 1;
-        transition: height 0.18s ease;
-      }
-
-      .progress-fill {
-        position: absolute;
-        inset: 0;
-        background: var(--grad-main);
-        clip-path: inset(0 calc(100% - var(--progress-percent)) 0 0);
-        transition: none;
-      }
-
-      .progress-wrap:hover .progress-rail {
-        height: 8px;
-      }
-
-      input[type="range"] {
-        width: 100%;
-        height: 20px;
-        margin: 0;
-        appearance: none;
-        -webkit-appearance: none;
-        background: transparent;
-        cursor: pointer;
-        position: relative;
-        z-index: 2;
-      }
-
-      input[type="range"]::-webkit-slider-runnable-track {
-        height: 4px;
-        border-radius: 999px;
-        background: transparent;
-        transition: height 0.18s ease;
-      }
-
-      input[type="range"]::-webkit-slider-thumb {
-        width: 12px;
-        height: 12px;
-        margin-top: -4px;
-        border: 0;
-        border-radius: 50%;
-        appearance: none;
-        -webkit-appearance: none;
-        background: var(--teal-strong);
-        transition: width 0.18s ease, height 0.18s ease, margin-top 0.18s ease;
-      }
-
-      .progress-wrap:hover input[type="range"]::-webkit-slider-runnable-track {
-        height: 8px;
-      }
-
-      .progress-wrap:hover input[type="range"]::-webkit-slider-thumb {
-        width: 16px;
-        height: 16px;
-        margin-top: -4px;
-      }
-
-      input[type="range"]::-moz-range-track {
-        height: 4px;
-        border-radius: 999px;
-        background: transparent;
-        transition: height 0.18s ease;
-      }
-
-      input[type="range"]::-moz-range-thumb {
-        width: 12px;
-        height: 12px;
-        border: 0;
-        border-radius: 50%;
-        background: var(--teal-strong);
-      }
-
-      .progress-wrap:hover input[type="range"]::-moz-range-track {
-        height: 8px;
-      }
-
-      .progress-wrap:hover input[type="range"]::-moz-range-thumb {
-        width: 16px;
-        height: 16px;
-      }
-
-      input[type="range"]::-moz-range-progress {
-        background: transparent;
-      }
-
-      .volume-wrap {
-        display: flex;
-        align-items: center;
-        position: relative;
-        flex: 0 0 40px;
-        width: 40px;
-        overflow: visible;
-        z-index: 3;
-      }
-
-      .volume-wrap::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 40px;
-        width: 8px;
-        height: 40px;
-      }
-
-      .volume-wrap input[type="range"] {
-        position: absolute;
-        top: 50%;
-        left: 48px;
-        width: 0;
-        opacity: 0;
-        pointer-events: none;
-        transform: translateY(-50%);
-        transition: width 0.2s ease, opacity 0.15s ease;
-      }
-
-      .volume-wrap:hover input[type="range"],
-      .volume-wrap:focus-within input[type="range"] {
-        width: 82px;
-        opacity: 1;
-        pointer-events: auto;
-      }
-
-      .volume-wrap input[type="range"]::-webkit-slider-runnable-track {
-        height: 4px;
-        border-radius: 999px;
-        background: linear-gradient(
-          to right,
-          #ffffff 0 var(--volume-percent, 100%),
-          rgba(255, 255, 255, 0.58) var(--volume-percent, 100%) 100%
-        );
-      }
-
-      .volume-wrap input[type="range"]::-webkit-slider-thumb {
-        width: 12px;
-        height: 12px;
-        margin-top: -4px;
-        border: 0;
-        border-radius: 50%;
-        background: #ffffff;
-      }
-
-      .volume-wrap input[type="range"]::-moz-range-track {
-        height: 4px;
-        border-radius: 999px;
-        background: linear-gradient(
-          to right,
-          #ffffff 0 var(--volume-percent, 100%),
-          rgba(255, 255, 255, 0.58) var(--volume-percent, 100%) 100%
-        );
-      }
-
-      .volume-wrap input[type="range"]::-moz-range-thumb {
-        width: 12px;
-        height: 12px;
-        border: 0;
-        border-radius: 50%;
-        background: #ffffff;
-      }
-
-      .volume-symbol {
-        fill: none;
-        stroke: currentColor;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        stroke-width: 2;
-      }
-
-      #volume-toggle .volume-symbol {
-        width: 23px;
-        height: 23px;
-      }
-
-      .volume-symbol .volume-body {
-        fill: currentColor;
-      }
-
-      .volume-symbol .volume-muted {
-        display: none;
-      }
-
-      #volume-toggle.is-muted .volume-wave {
-        display: none;
-      }
-
-      #volume-toggle.is-low-volume .volume-wave-outer {
-        display: none;
-      }
-
-      #volume-toggle.is-muted .volume-muted {
-        display: block;
-      }
-
-      .time-label {
-        min-width: 104px;
-        margin-left: auto;
-        text-align: right;
-        font-size: 0.8rem;
-        color: #ffffff;
-        font-weight: 600;
-      }
-
-      .video-info {
-        width: 100%;
-        margin: 0 auto;
-        padding: 14px 18px 24px;
-        background: #ffffff;
-        border-top: 1px solid rgba(4, 173, 192, 0.12);
-        position: relative;
-        z-index: 3;
-        grid-row: 2;
-        grid-column: 1;
-        cursor: default;
-      }
-
-      .video-info h2 {
-        margin: 0 0 6px;
-        font-size: clamp(1.2rem, 1.5vw, 1.6rem);
-        color: var(--text-strong);
-      }
-
-      .video-info p {
-        color: var(--text-muted);
-        font-size: 0.9rem;
-        line-height: 1.7;
-        max-width: 980px;
-        margin: 0;
-      }
-
-      .tag-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 18px;
-      }
-
-      .tag {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.46rem 0.8rem;
-        border-radius: 999px;
-        background: var(--pill-bg);
-        border: 1px solid rgba(4, 173, 192, 0.16);
-        color: var(--teal-strong);
-        font-size: 0.75rem;
-        font-weight: 700;
-      }
-
-      :fullscreen .portfolio-shell {
-        width: 100vw;
-        max-width: none;
-        padding: 0;
-      }
-
-      :fullscreen .portfolio-header,
-      :fullscreen .video-info,
-      :fullscreen .navbar {
-        display: none;
-      }
-
-      :fullscreen .player-layout {
-        height: 100vh;
-        margin-top: 0;
-        display: flex;
-        align-items: stretch;
-      }
-
-      :fullscreen .video-stage {
-        width: 100vw;
-        height: 100vh;
-        max-width: none;
-        border-radius: 0;
-        box-shadow: none;
-        border: 0;
-        display: block;
-        position: relative;
-      }
-
-      :fullscreen .video-viewport {
-        position: absolute;
-        inset: 0;
-        width: 100vw !important;
-        height: 100vh !important;
-        max-height: 100vh;
-      }
-
-      :fullscreen .video-frame {
-        width: 100%;
-        height: 100%;
-        border-radius: 0;
-        background: #000;
-      }
-
-      :fullscreen .video-frame video {
-        object-fit: contain;
-      }
-
-      :fullscreen .video-controls {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 4;
-        background: transparent;
-        border-top: 0;
-        transition: opacity 0.25s ease;
-      }
-
-      :fullscreen.controls-hidden .video-controls {
-        opacity: 0;
-        pointer-events: none;
-      }
-
-      :fullscreen.controls-hidden {
-        cursor: none;
-      }
-
-      @media (max-width: 900px) {
-        .player-page .navbar {
-          padding: 0 16px;
-        }
-
-        .player-page .nav-logo-text {
-          font-size: 0.95rem;
-        }
-
-        .portfolio-shell {
-          width: min(96%, 92%);
-        }
-      }
-    </style>
-  </head>
-  <body class="player-page">
-
-
-    <!-- 내비게이션 -->
-    <nav class="navbar" id="navbar">
-      <a href="index.html" class="nav-logo">
-        <img src="Color_Logo.png" alt="진부중 3D 동아리 로고" onerror="this.style.display='none'" />
-        <span class="nav-logo-text">진부중학교 3D 동아리</span>
-      </a>
-      <div class="nav-links">
-        <a href="works.html" aria-label="작품 목록으로 돌아가기">← 작품 목록</a>
-      </div>
-    </nav>
-
-    <main class="portfolio-shell">
-      <header class="portfolio-header"></header>
-
-      <section class="player-layout">
-        <div class="video-stage">
-          <div class="video-viewport">
-            <div class="video-frame">
-              <video
-                id="portfolio-player"
-                preload="metadata"
-                playsinline
-              >
-                <source src="https://res.cloudinary.com/dfrh0djn3/video/upload/v1777538955/%ED%99%88%ED%8E%98%EC%9D%B4%EC%A7%80%EC%9A%A9_1%EC%B0%A8_wgtt9q.mp4" type="video/mp4" />
-              </video>
-              <div class="video-overlay" aria-hidden="true"></div>
-            </div>
-          </div>
-
-          <div class="video-controls">
-            <div class="progress-wrap">
-              <div class="progress-rail" aria-hidden="true"><div class="progress-fill"></div></div>
-              <input id="progress-bar" type="range" min="0" max="1000" value="0" aria-label="재생 위치" />
-            </div>
-
-            <div class="controls-row">
-              <button class="icon-btn" id="play-toggle" type="button" aria-label="재생/일시정지">▶</button>
-              <div class="volume-wrap">
-                <button class="icon-btn" id="volume-toggle" type="button" aria-label="음소거">
-                  <svg class="volume-symbol" viewBox="0 0 24 24" aria-hidden="true">
-                    <path class="volume-body" d="M4 10v4h4l5 4V6l-5 4H4z" />
-                    <path class="volume-wave volume-wave-inner" d="M16 9.5a4 4 0 0 1 0 5" />
-                    <path class="volume-wave volume-wave-outer" d="M19 7a7 7 0 0 1 0 10" />
-                    <path class="volume-muted" d="m4 4 16 16" />
-                  </svg>
-                </button>
-                <input id="volume-bar" type="range" min="0" max="100" value="100" aria-label="볼륨" />
-              </div>
-              <span class="time-label" id="time-label">0:00 / 0:00</span>
-              <button class="icon-btn" id="fullscreen-toggle" type="button" aria-label="전체화면">⤢</button>
-            </div>
-          </div>
-
-          <div class="video-info">
-            <h2 id="video-title">3D 캐릭터 컨셉 영상</h2>
-            <p id="video-description">
-              메타버스와 3D 콘텐츠 제작 과정을 담은 포트폴리오 영상입니다. 모델링, 환경 구성,
-              그리고 협업 과정을 한눈에 보여줍니다.
-            </p>
-
+    }
+  </style>
+</head>
+
+<body class="player-page">
+
+
+  <!-- 내비게이션 -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo">
+      <img src="Color_Logo.png" alt="진부중 3D 동아리 로고" onerror="this.style.display='none'" />
+      <span class="nav-logo-text">진부중학교 3D 동아리</span>
+    </a>
+
+  </nav>
+
+  <main class="portfolio-shell">
+    <header class="portfolio-header"></header>
+
+    <section class="player-layout">
+      <div class="video-stage">
+        <!-- 추천 영상 버튼: 레터박스 포함 전체 영역 우측 상단 -->
+        <button type="button" class="recommend-open-btn" id="open-recommend-btn" aria-label="추천 영상 목록 보기"
+          title="추천 영상 목록">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.3"
+            stroke-linecap="round">
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="4" y1="12" x2="15" y2="12"></line>
+            <line x1="4" y1="18" x2="9" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="video-viewport">
+          <div class="video-frame">
+            <video id="portfolio-player" preload="metadata" playsinline>
+              <source
+                src="https://res.cloudinary.com/dfrh0djn3/video/upload/v1777538955/%ED%99%88%ED%8E%98%EC%9D%B4%EC%A7%80%EC%9A%A9_1%EC%B0%A8_wgtt9q.mp4"
+                type="video/mp4" />
+            </video>
+            <div class="video-overlay" aria-hidden="true"></div>
           </div>
         </div>
-      </section>
-    </main>
 
-    <script src="play.js"></script>
-  </body>
+        <div class="video-controls">
+          <div class="progress-wrap">
+            <div class="progress-rail" aria-hidden="true">
+              <div class="progress-fill"></div>
+            </div>
+            <input id="progress-bar" type="range" min="0" max="1000" value="0" aria-label="재생 위치" />
+          </div>
+
+          <div class="controls-row">
+            <button class="icon-btn" id="play-toggle" type="button" aria-label="재생/일시정지">▶</button>
+            <div class="volume-wrap">
+              <button class="icon-btn" id="volume-toggle" type="button" aria-label="음소거">
+                <svg class="volume-symbol" viewBox="0 0 24 24" aria-hidden="true">
+                  <path class="volume-body" d="M4 10v4h4l5 4V6l-5 4H4z" />
+                  <path class="volume-wave volume-wave-inner" d="M16 9.5a4 4 0 0 1 0 5" />
+                  <path class="volume-wave volume-wave-outer" d="M19 7a7 7 0 0 1 0 10" />
+                  <path class="volume-muted" d="m4 4 16 16" />
+                </svg>
+              </button>
+              <input id="volume-bar" type="range" min="0" max="100" value="100" aria-label="볼륨" />
+            </div>
+            <span class="time-label" id="time-label">0:00 / 0:00</span>
+            <button class="icon-btn" id="fullscreen-toggle" type="button" aria-label="전체화면">⤢</button>
+          </div>
+        </div>
+
+        <div class="video-info">
+          <h2 id="video-title">3D 캐릭터 컨셉 영상</h2>
+          <p id="video-description">
+            메타버스와 3D 콘텐츠 제작 과정을 담은 포트폴리오 영상입니다. 모델링, 환경 구성,
+            그리고 협업 과정을 한눈에 보여줍니다.
+          </p>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 화면 하단 추천 영상 트레이 -->
+  <div class="recommend-bottom-overlay" id="recommend-modal" aria-hidden="true">
+    <div class="recommend-backdrop" id="recommend-modal-backdrop"></div>
+    <div class="recommend-bottom-tray">
+      <button type="button" class="tray-close-btn" id="close-recommend-modal-btn" aria-label="닫기">✕</button>
+      <div class="tray-cards-wrap" id="recommend-video-list">
+        <!-- DB에서 불러온 영상 목록 또는 빈 상태 메시지 -->
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="dataService.js"></script>
+  <script src="play.js"></script>
+</body>
+
 </html>

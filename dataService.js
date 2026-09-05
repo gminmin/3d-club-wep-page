@@ -224,6 +224,54 @@ const dataService = {
     }
   },
 
+  // --- 추천 영상 및 동영상 (Videos) ---
+  async getVideos() {
+    try {
+      const q = query(collection(db, "video"), orderBy("order", "asc"));
+      const querySnapshot = await trackApiCall(getDocs(q));
+      return querySnapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+    } catch (error) {
+      console.warn("Videos fetch failed from Firestore:", error);
+      return [];
+    }
+  },
+
+  async addVideo(video) {
+    try {
+      const newVideo = {
+        createdAt: new Date().toISOString(),
+        order: typeof video.order === "number" ? video.order : Date.now(),
+        ...video
+      };
+      return await trackApiCall(addDoc(collection(db, "video"), newVideo));
+    } catch (error) {
+      console.error("Video create failed:", error);
+      throw wrapFirebaseError("영상 등록에 실패했습니다", error);
+    }
+  },
+
+  async updateVideo(id, video) {
+    try {
+      return await trackApiCall(updateDoc(doc(db, "video", id), {
+        ...video,
+        updatedAt: new Date().toISOString()
+      }));
+    } catch (error) {
+      console.error("Video update failed:", error);
+      throw wrapFirebaseError("영상 수정에 실패했습니다", error);
+    }
+  },
+
+  async deleteVideo(id) {
+    try {
+      return await trackApiCall(deleteDoc(doc(db, "video", id)));
+    } catch (error) {
+      console.error("Video delete failed:", error);
+      throw wrapFirebaseError("영상 삭제에 실패했습니다", error);
+    }
+  },
+
+
   // --- 데모파일 (Demo Files) ---
   async getDemoFiles() {
     try {
